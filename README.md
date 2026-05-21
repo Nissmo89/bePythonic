@@ -1,18 +1,15 @@
 # bePythonic
 
-Backbone AI to learn Python through a terminal-first workflow.
+Desktop Python editor app using `PyQt6` + `QWebEngine` + `Ace Editor`, with an
+OpenRouter-backed broken-code generator.
 
-## Current Scope (v0.1.0)
+## Install
 
-This first production baseline implements the MVP core loop:
+```bash
+pip install -e .
+```
 
-1. Load lesson JSON
-2. Show lesson metadata/content
-3. Run learner code with timeout
-4. Judge output
-5. Save local progress
-
-## Install (editable)
+If you want lint/type/test tooling too:
 
 ```bash
 pip install -e .[dev]
@@ -21,29 +18,42 @@ pip install -e .[dev]
 ## Run
 
 ```bash
-bepythonic start
-bepythonic lesson 01_variables
-bepythonic progress
-bepythonic tui
+bepythonic
 ```
 
-## Test and Quality
+## OpenRouter Setup
+
+Set your API key before using **Generate Broken Code**:
 
 ```bash
-pytest
-ruff check .
-mypy src
+export OPENROUTER_API_KEY="your_key_here"
 ```
 
-## Packaging
+Optional model overrides:
 
 ```bash
-python -m build
+export OPENROUTER_MODEL="qwen/qwen3-next-80b-a3b-instruct:free"
+export OPENROUTER_FALLBACK_MODELS="deepseek/deepseek-v4-flash:free,google/gemma-4-26b-a4b-it:free"
 ```
 
-## Notes
+## Runtime Note (Linux)
 
-- Lessons live under `src/bepythonic/lessons/`.
-- Local progress is stored in `src/bepythonic/data/progress.json` by default.
-- AI integration is intentionally deferred until the core learning loop is stable.
-# bePythonic
+`QWebEngine` needs system GUI/OpenGL libraries. If launch fails with
+`libGL.so.1` missing, install your distro's OpenGL runtime packages first.
+
+## What You Get
+
+- `QMainWindow` app shell
+- `QWebEngineView` surface hosting an Ace Python editor
+- Toolbar actions: `Generate Broken Code`, `Syntax Check`, `Open .py`, `Save .py`, `Clear`
+- Background AI generation worker so the GUI stays responsive
+- OpenRouter model fallback logic for robust code generation
+
+## Project Layout
+
+```text
+src/bepythonic/main.py
+src/bepythonic/gui/main_window.py
+src/bepythonic/gui/demo_html.py
+src/bepythonic/ai/broken_code_agent.py
+```
