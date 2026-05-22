@@ -25,8 +25,7 @@ classifiers = [
 ]
 dependencies = [
   "PyQt6>=6.7.1",
-  "PyQt6-WebEngine>=6.7.0",
-  "openai>=1.40.0"
+  "PyQt6-WebEngine>=6.7.0"
 ]
 
 [project.optional-dependencies]

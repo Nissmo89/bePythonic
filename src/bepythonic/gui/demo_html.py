@@ -155,6 +155,7 @@ EDITOR_HTML = """
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ace.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/mode-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/theme-monokai.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ext-language_tools.min.js"></script>
   <script>
     const engineStatus = document.getElementById("engine-status");
     const lineCount = document.getElementById("line-count");

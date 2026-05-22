@@ -1,7 +1,7 @@
 # bePythonic
 
 Desktop Python editor app using `PyQt6` + `QWebEngine` + `Ace Editor`, with an
-OpenRouter-backed broken-code generator.
+Gemini-backed broken-code generator.
 
 ## Install
 
@@ -21,19 +21,23 @@ pip install -e .[dev]
 bepythonic
 ```
 
-## OpenRouter Setup
+## Gemini API Setup
 
 Set your API key before using **Generate Broken Code**:
 
 ```bash
-export OPENROUTER_API_KEY="your_key_here"
+export GEMINI_API_KEY="your_key_here"
 ```
 
 Optional model overrides:
 
 ```bash
-export OPENROUTER_MODEL="qwen/qwen3-next-80b-a3b-instruct:free"
-export OPENROUTER_FALLBACK_MODELS="deepseek/deepseek-v4-flash:free,google/gemma-4-26b-a4b-it:free"
+export GEMINI_MODEL="gemini-3.5-flash"
+export GEMINI_FALLBACK_MODELS="gemini-3.5-flash-lite,gemini-2.5-flash,gemini-2.5-flash-lite,gemini-2.0-flash,gemini-2.0-flash-lite"
+# Optional: switch API version (defaults to v1beta)
+export GEMINI_API_VERSION="v1beta"
+# Optional: disable automatic model discovery (enabled by default)
+export GEMINI_DISCOVER_MODELS="1"
 ```
 
 ## Runtime Note (Linux)
@@ -47,7 +51,7 @@ export OPENROUTER_FALLBACK_MODELS="deepseek/deepseek-v4-flash:free,google/gemma-
 - `QWebEngineView` surface hosting an Ace Python editor
 - Toolbar actions: `Generate Broken Code`, `Syntax Check`, `Open .py`, `Save .py`, `Clear`
 - Background AI generation worker so the GUI stays responsive
-- OpenRouter model fallback logic for robust code generation
+- Gemini model fallback logic for robust code generation
 
 ## Project Layout
 

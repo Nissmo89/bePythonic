@@ -21,7 +21,7 @@ from bepythonic.gui.demo_html import EDITOR_HTML
 
 
 class CodeGenerationWorker(QObject):
-    """Background worker for OpenRouter code generation."""
+    """Background worker for Gemini code generation."""
 
     finished = pyqtSignal(str)
     failed = pyqtSignal(str)
@@ -176,7 +176,7 @@ class BePythonicWindow(QMainWindow):
             self,
             "Generation Failed",
             message
-            or "OpenRouter could not return usable code. Check API key/network/model settings.",
+            or "Gemini could not return usable code. Check API key/network/model settings.",
         )
         self.statusBar().showMessage("Code generation failed.", 4000)
 
