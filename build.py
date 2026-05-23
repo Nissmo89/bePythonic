@@ -19,11 +19,45 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 APP_NAME = "bepythonic"
 ENTRY_MODULE = "bepythonic.main"
+BOOTSTRAP_ENV_FLAG = "BEPYTHONIC_BUILD_BOOTSTRAPPED"
 
 
 def run_cmd(cmd: list[str], *, cwd: Path = ROOT) -> None:
     print(f"[build.py] $ {' '.join(cmd)}")
     subprocess.run(cmd, cwd=str(cwd), check=True)
+
+
+def project_python() -> Path:
+    if os.name == "nt":
+        return ROOT / ".venv" / "Scripts" / "python.exe"
+    return ROOT / ".venv" / "bin" / "python"
+
+
+def ensure_project_interpreter() -> None:
+    target_python = project_python()
+    current_python = Path(sys.executable).absolute()
+
+    if target_python.exists():
+        if current_python == target_python.absolute():
+            return
+    else:
+        print("[build.py] Creating project virtual environment at .venv ...")
+        run_cmd([sys.executable, "-m", "venv", str(ROOT / ".venv")])
+
+    if os.getenv(BOOTSTRAP_ENV_FLAG) == "1":
+        return
+
+    if not target_python.exists():
+        raise FileNotFoundError(f"Expected project interpreter at: {target_python}")
+
+    print(f"[build.py] Re-launching with project interpreter: {target_python}")
+    env = os.environ.copy()
+    env[BOOTSTRAP_ENV_FLAG] = "1"
+    os.execve(
+        str(target_python),
+        [str(target_python), str(ROOT / "build.py"), *sys.argv[1:]],
+        env,
+    )
 
 
 def ensure_editable_install() -> None:
@@ -52,10 +86,10 @@ def make_launcher_file() -> Path:
     launcher_dir.mkdir(parents=True, exist_ok=True)
     launcher = launcher_dir / "_bepythonic_launcher.py"
     launcher.write_text(
-        "from bepythonic.main import main\\n"
-        "\\n"
-        "if __name__ == '__main__':\\n"
-        "    main()\\n",
+        "from bepythonic.main import main\n"
+        "\n"
+        "if __name__ == '__main__':\n"
+        "    main()\n",
         encoding="utf-8",
     )
     return launcher
@@ -164,6 +198,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    ensure_project_interpreter()
     args = parse_args()
 
     if args.run_source:
