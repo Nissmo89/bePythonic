@@ -65,6 +65,24 @@ export GEMINI_DISCOVER_MODELS="1"
 `QWebEngine` needs system GUI/OpenGL libraries. If launch fails with
 `libGL.so.1` missing, install your distro's OpenGL runtime packages first.
 
+## Runtime Note (Windows)
+
+If the app window opens but the web view is fully black, this is usually a
+GPU/Qt WebEngine acceleration issue. The app now enables a software rendering
+fallback automatically on Windows.
+
+To force-enable (default):
+
+```bash
+set BEPYTHONIC_WINDOWS_SAFE_RENDER=1
+```
+
+To disable fallback and try hardware acceleration:
+
+```bash
+set BEPYTHONIC_WINDOWS_SAFE_RENDER=0
+```
+
 ## What You Get
 
 - `QMainWindow` app shell
