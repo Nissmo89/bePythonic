@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from pathlib import Path
 from urllib import error, parse, request
 
 GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
@@ -37,6 +38,7 @@ CODE_RESPONSE_SCHEMA = {
     },
     "required": ["language", "code"],
 }
+_ENV_LOADED = False
 
 
 class GeminiStatusError(RuntimeError):
@@ -51,7 +53,63 @@ class GeminiStatusError(RuntimeError):
         self.retry_after_seconds = retry_after_seconds
 
 
+def _strip_env_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
+
+
+def _load_env_file(env_path: Path) -> None:
+    try:
+        contents = env_path.read_text(encoding="utf-8")
+    except OSError:
+        return
+
+    for line in contents.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        if stripped.startswith("export "):
+            stripped = stripped[7:].strip()
+
+        if "=" not in stripped:
+            continue
+
+        key, raw_value = stripped.split("=", 1)
+        env_key = key.strip()
+        if not env_key or env_key in os.environ:
+            continue
+
+        os.environ[env_key] = _strip_env_value(raw_value)
+
+
+def ensure_env_loaded() -> None:
+    global _ENV_LOADED
+    if _ENV_LOADED:
+        return
+
+    candidates: list[Path] = []
+    explicit_path = os.getenv("BEPYTHONIC_DOTENV_PATH")
+    if explicit_path:
+        candidates.append(Path(explicit_path).expanduser())
+
+    cwd_env = Path.cwd() / ".env"
+    project_env = Path(__file__).resolve().parents[3] / ".env"
+    candidates.append(cwd_env)
+    if project_env != cwd_env:
+        candidates.append(project_env)
+
+    for env_path in candidates:
+        if env_path.is_file():
+            _load_env_file(env_path)
+
+    _ENV_LOADED = True
+
+
 def get_api_key() -> str:
+    ensure_env_loaded()
     api_key = os.getenv(GEMINI_API_KEY_ENV)
 
     if not api_key:
@@ -63,11 +121,13 @@ def get_api_key() -> str:
 
 
 def get_api_version() -> str:
+    ensure_env_loaded()
     raw_value = os.getenv(GEMINI_API_VERSION_ENV, DEFAULT_API_VERSION).strip().lower()
     return raw_value if raw_value in {"v1", "v1beta"} else DEFAULT_API_VERSION
 
 
 def should_discover_models() -> bool:
+    ensure_env_loaded()
     raw_value = os.getenv(GEMINI_DISCOVER_MODELS_ENV, "1").strip().lower()
     return raw_value not in {"0", "false", "no", "off"}
 
@@ -123,6 +183,7 @@ def unique_models(models: list[str]) -> list[str]:
 
 
 def get_configured_model_settings() -> tuple[str, list[str]]:
+    ensure_env_loaded()
     model = os.getenv(GEMINI_MODEL_ENV, DEFAULT_MODEL).strip() or DEFAULT_MODEL
     configured_fallbacks = split_model_list(os.getenv(GEMINI_FALLBACK_MODELS_ENV))
     fallback_models = configured_fallbacks or DEFAULT_FALLBACK_MODELS

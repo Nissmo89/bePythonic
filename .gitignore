@@ -1,4 +1,13 @@
 .env
+.env.*
+!.env.example
+.python-version
+.vscode/
+.idea/
+*.local
+*.log
+*.pem
+*.key
 .venv/
 __pycache__/
 *.pyc

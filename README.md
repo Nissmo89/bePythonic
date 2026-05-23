@@ -21,12 +21,32 @@ pip install -e .[dev]
 bepythonic
 ```
 
+## One-Command Build + Run (Linux/Windows)
+
+```bash
+python3 build.py
+```
+
+Useful variants:
+
+```bash
+python3 build.py --build-only   # build executable only
+python3 build.py --run-source   # run directly from source
+python3 build.py --onefile      # build single-file executable
+```
+
 ## Gemini API Setup
 
 Set your API key before using **Generate Broken Code**:
 
 ```bash
 export GEMINI_API_KEY="your_key_here"
+```
+
+Or create a `.env` file in the project root:
+
+```dotenv
+GEMINI_API_KEY=your_key_here
 ```
 
 Optional model overrides:
