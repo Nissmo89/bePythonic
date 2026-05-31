@@ -501,6 +501,6 @@ class BePythonicWindow(FramelessMainWindow):
     def load_editor_page(self) -> None:
         self.web_view.setHtml(EDITOR_HTML, QUrl("https://bepythonic.local/studio/"))
 
-    def closeEvent(self, event) -> None:  # type: ignore[override]
+    def closeEvent(self, event) -> None:  # noqa: N802  # type: ignore[override]
         self._bridge.shutdown()
         super().closeEvent(event)

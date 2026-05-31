@@ -368,7 +368,7 @@ def pick_auto_models(available_models: list[str]) -> list[str]:
 
 def get_model_candidates(api_key: str, api_version: str) -> list[str]:
     primary_model, fallback_models = get_configured_model_settings()
-    configured_candidates = unique_models([primary_model] + fallback_models)
+    configured_candidates = unique_models([primary_model, *fallback_models])
 
     if not should_discover_models():
         return configured_candidates
