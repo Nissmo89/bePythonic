@@ -10,7 +10,11 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from qframelesswindow.webengine import FramelessWebEngineView
 
-from bepythonic.ai.broken_code_agent import generate_broken_code, ask_ai_tutor, generate_custom_lesson
+from bepythonic.ai.broken_code_agent import (
+    ask_ai_tutor,
+    generate_broken_code,
+    generate_custom_lesson,
+)
 from bepythonic.gui.demo_html import EDITOR_HTML
 
 
@@ -112,13 +116,13 @@ class CodeExecutionWorker(QObject):
         self.code = code
 
     def run(self) -> None:
-        import subprocess
-        import tempfile
-        import sys
         import os
+        import subprocess
+        import sys
+        import tempfile
 
         # Save code to a temp file
-        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w", encoding="utf-8") as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w", encoding="utf-8") as temp_file:  # noqa: E501
             temp_file.write(self.code)
             temp_file_path = temp_file.name
 
@@ -130,11 +134,11 @@ class CodeExecutionWorker(QObject):
                 text=True,
                 timeout=5.0
             )
-            self.finished.emit(result.returncode == 0, result.stdout, result.stderr, result.returncode)
+            self.finished.emit(result.returncode == 0, result.stdout, result.stderr, result.returncode)  # noqa: E501
         except subprocess.TimeoutExpired:
             self.finished.emit(False, "", "Error: Code execution timed out after 5.0 seconds.", -1)
         except Exception as e:
-            self.finished.emit(False, "", f"Error running code: {str(e)}", -1)
+            self.finished.emit(False, "", f"Error running code: {e!s}", -1)
         finally:
             try:
                 os.remove(temp_file_path)
@@ -190,7 +194,7 @@ class CustomLessonWorker(QObject):
 class WebUiBridge(QObject):
     """QWebChannel bridge used by the embedded web app."""
 
-    bridgeEvent = pyqtSignal(str, str)
+    bridgeEvent = pyqtSignal(str, str)  # noqa: N815
 
     def __init__(self, parent_window: QMainWindow) -> None:
         super().__init__()

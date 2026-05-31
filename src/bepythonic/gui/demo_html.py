@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Dashboard/lessons page rendered inside QWebEngineView for a premium Python Learning Platform with dedicated Profile & Stats page and AI Lesson Generator."""
 
 EDITOR_HTML = r"""

@@ -72,7 +72,7 @@ LESSON_RESPONSE_SCHEMA = {
                     },
                     "starter": {"type": "string"}
                 },
-                "required": ["id", "title", "level", "minutes", "summary", "objectives", "blocks", "starter"]
+                "required": ["id", "title", "level", "minutes", "summary", "objectives", "blocks", "starter"]  # noqa: E501
             }
         }
     },
@@ -406,7 +406,7 @@ def get_model_candidates(api_key: str, api_version: str) -> list[str]:
     return discovered_fallbacks or configured_candidates
 
 
-def get_generate_payload(user_prompt: str, use_structured_output: bool, response_schema: dict | None = None) -> dict:
+def get_generate_payload(user_prompt: str, use_structured_output: bool, response_schema: dict | None = None) -> dict:  # noqa: E501
     payload = {
         "systemInstruction": {
             "parts": [{"text": SYSTEM_PROMPT.strip()}],
@@ -445,7 +445,7 @@ def sleep_for_rate_limit(retry_after_seconds: float | None) -> None:
     time.sleep(delay_seconds)
 
 
-def generate_content(model: str, user_prompt: str, api_key: str, api_version: str, response_schema: dict | None = None) -> dict:
+def generate_content(model: str, user_prompt: str, api_key: str, api_version: str, response_schema: dict | None = None) -> dict:  # noqa: E501
     use_structured_output = True
     rate_limit_retries = 0
 
@@ -697,7 +697,7 @@ Generate an engaging, practical lesson for the given topic.
 """
 
 def generate_custom_lesson(topic: str) -> str:
-    user_prompt = f"Generate a comprehensive python learning concept and lesson JSON for the topic: {topic}"
+    user_prompt = f"Generate a comprehensive python learning concept and lesson JSON for the topic: {topic}"  # noqa: E501
 
     api_key = get_api_key()
     api_version = get_api_version()
@@ -750,7 +750,8 @@ TUTOR_SYSTEM_PROMPT = """
 You are a senior-level Python tutor and reviewer in the 'bePythonic' learning app.
 Your goals:
 - Explain Python concepts, syntax errors, and logic bugs in simple, clear, friendly language.
-- Guide the user step-by-step. If they ask for a hint, provide a subtle clue that triggers critical thinking rather than giving the solution.
+- Guide the user step-by-step. If they ask for a hint, provide a subtle clue that
+  triggers critical thinking rather than giving the solution.
 - Keep explanations elegant and concise.
 - Format your response in clean markdown with Python code blocks where appropriate.
 """
@@ -761,7 +762,7 @@ def ask_ai_tutor(messages_json: str) -> str:
     try:
         messages = json.loads(messages_json)
     except Exception as err:
-        raise ValueError(f"Invalid messages JSON format: {err}")
+        raise ValueError(f"Invalid messages JSON format: {err}") from err
 
     # Build Gemini-compliant content list
     gemini_contents = []
