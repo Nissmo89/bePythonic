@@ -127,6 +127,8 @@ def build_executable(*, onefile: bool) -> Path:
         str(spec_path),
         "--collect-all",
         "PyQt6",
+        "--collect-all",
+        "qframelesswindow",
         "--collect-submodules",
         "PyQt6.QtWebEngineWidgets",
         "--collect-submodules",

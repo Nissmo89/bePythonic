@@ -48,6 +48,7 @@ def _configure_windows_rendering() -> None:
 def main() -> None:
     """GUI entrypoint."""
     _configure_windows_rendering()
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
     app = QApplication(sys.argv)
     app.setApplicationName("bePythonic")
 

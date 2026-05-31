@@ -1,1891 +1,1206 @@
-"""Kinetic UI dashboard/editor pages rendered inside QWebEngineView."""
+"""Dashboard/lessons page rendered inside QWebEngineView for a premium Python Learning Platform with dedicated Profile & Stats page and AI Lesson Generator."""
 
 EDITOR_HTML = r"""
-<!DOCTYPE html>
-<html class="dark" lang="en">
+<!doctype html>
+<html class="h-full" lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bePythonic - Kinetic Studio</title>
+  <title>bePythonic Learning Platform</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/cobalt.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/base16-dark.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-calendar-heatmap@0.8.4/dist/vue-calendar-heatmap.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Space Grotesk"', '"Segoe UI"', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          colors: {
+            learning: {
+              primary: "#4f46e5",
+              secondary: "#6366f1",
+              bg: "#f8fafc",
+              border: "#e2e8f0",
+              text: "#0f172a",
+              muted: "#475569",
+              success: "#10b981",
+              warning: "#f59e0b",
+              error: "#ef4444"
+            }
+          }
+        }
+      }
+    };
+  </script>
 
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.5/split.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue-calendar-heatmap@0.8.4/dist/vue-calendar-heatmap.browser.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 
   <style>
     :root {
-      color-scheme: dark;
-      --background: #0b1326;
-      --surface-lowest: #060e20;
-      --surface-low: #131b2e;
-      --surface: #171f33;
-      --surface-high: #222a3d;
-      --surface-highest: #2d3449;
-      --on-surface: #dae2fd;
-      --on-surface-variant: #c5c9ac;
-      --outline: #8f9378;
-      --outline-variant: #454932;
-      --lime: #cdf200;
-      --lime-dim: #b4d400;
-      --yellow: #ffe24c;
-      --yellow-dim: #e2c62d;
-      --danger: #ffb4ab;
-      --glow: 0 0 24px rgba(205, 242, 0, 0.15);
-      --radius-xs: 4px;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --space-1: 8px;
-      --space-2: 16px;
-      --space-3: 24px;
-      --space-4: 32px;
+      --bg-color: #f8fafc;
+      --bar-bg: rgba(255, 255, 255, 0.75);
+      --editor-bg: #ffffff;
+      --border-color: rgba(226, 232, 240, 0.8);
+      --text-color: #0f172a;
+      --muted-color: #475569;
     }
 
-    * {
-      box-sizing: border-box;
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.5);
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
     }
 
-    html,
     body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: radial-gradient(circle at top right, rgba(205, 242, 0, 0.08), transparent 34%),
-        radial-gradient(circle at bottom left, rgba(255, 226, 76, 0.08), transparent 36%),
-        var(--background);
-      color: var(--on-surface);
-      font-family: "Geist", sans-serif;
+      font-family: "Space Grotesk", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.03) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%);
     }
 
-    button,
-    input,
-    select,
-    textarea {
-      font-family: inherit;
+    /* True Glassmorphism overlay panels */
+    .glass-nav {
+      background: var(--bar-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .material-symbols-outlined {
-      font-family: "Material Symbols Outlined";
-      font-weight: normal;
-      font-style: normal;
-      font-size: 22px;
-      line-height: 1;
-      display: inline-block;
-      white-space: nowrap;
-      direction: ltr;
-      -webkit-font-feature-settings: "liga";
-      -webkit-font-smoothing: antialiased;
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
     }
 
-    #app {
-      height: 100%;
-      display: flex;
+    /* Tactile controls */
+    .btn-tactile-primary {
+      background: #4f46e5;
+      color: #ffffff;
+      border: 1px solid rgba(79, 70, 229, 0.4);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 2px rgba(15, 23, 42, 0.05);
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-tactile-primary:hover {
+      background: #4338ca;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(15, 23, 42, 0.08);
+      transform: translateY(-0.5px);
+    }
+    .btn-tactile-primary:active {
+      background: #3730a3;
+      transform: translateY(0.5px);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
     }
 
-    .side-nav {
-      width: 252px;
-      background: var(--surface-low);
-      border-right: 1px solid var(--outline-variant);
-      padding: 28px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex-shrink: 0;
-      overflow: hidden;
+    .btn-tactile-secondary {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(6px);
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-tactile-secondary:hover {
+      background: rgba(248, 250, 252, 0.98);
+      border-color: #cbd5e1;
+      transform: translateY(-0.5px);
+    }
+    .btn-tactile-secondary:active {
+      transform: translateY(0.5px);
+      background: #f1f5f9;
     }
 
-    .brand {
-      padding: 0 12px 14px;
-      border-bottom: 1px solid rgba(143, 147, 120, 0.22);
-      margin-bottom: 8px;
+    .nav-tab {
+      transition: all 0.15s ease-in-out;
+    }
+    .nav-tab.active {
+      background-color: rgba(79, 70, 229, 0.07);
+      color: #4f46e5;
+      border: 1px solid rgba(79, 70, 229, 0.12);
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 30px;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      font-weight: 700;
-      color: var(--lime-dim);
+    /* Premium AI Chat Bubble design */
+    .chat-bubble {
+      max-width: 80%;
+      border-radius: 12px;
+      padding: 10px 14px;
+      line-height: 1.5;
     }
-
-    .brand p {
-      margin: 8px 0 0;
-      color: var(--on-surface-variant);
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      font-family: "JetBrains Mono", monospace;
-      text-transform: uppercase;
+    .chat-bubble.user {
+      background-color: #4f46e5;
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+      align-self: flex-end;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
     }
-
-    .nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      overflow-y: auto;
-      padding-right: 2px;
-      flex: 1;
-    }
-
-    .nav-item {
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--on-surface-variant);
-      border-radius: var(--radius-md);
-      padding: 11px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .nav-item:hover {
-      background: var(--surface-highest);
-      color: var(--lime);
-    }
-
-    .nav-item.active {
-      border-color: rgba(205, 242, 0, 0.48);
-      background: rgba(205, 242, 0, 0.09);
-      color: var(--lime);
-      box-shadow: var(--glow);
-      transform: translateX(2px);
-    }
-
-    .nav-footer {
-      border-top: 1px solid rgba(143, 147, 120, 0.22);
-      padding-top: 12px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .main-shell {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .topbar {
-      height: 68px;
-      border-bottom: 1px solid var(--outline-variant);
-      background: rgba(19, 27, 46, 0.9);
+    .chat-bubble.ai {
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      gap: 16px;
-      flex-shrink: 0;
+      color: var(--text-color);
+      border-bottom-left-radius: 2px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+      align-self: flex-start;
     }
 
-    .topbar-title {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .topbar-title .kicker {
-      color: var(--yellow-dim);
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-family: "JetBrains Mono", monospace;
-    }
-
-    .topbar-title .title {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .topbar-search {
-      width: 320px;
-      background: var(--surface);
-      border: 1px solid var(--outline-variant);
-      border-radius: 999px;
-      color: var(--on-surface);
-      padding: 9px 14px;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .topbar-search:focus {
-      border-color: rgba(205, 242, 0, 0.58);
-      box-shadow: var(--glow);
-    }
-
-    .icon-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--outline-variant);
-      background: var(--surface);
-      color: var(--on-surface-variant);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .icon-btn:hover {
-      border-color: rgba(205, 242, 0, 0.58);
-      color: var(--lime);
-    }
-
-    .chip {
-      border: 1px solid var(--outline-variant);
-      background: var(--surface-high);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 12px;
-      color: var(--on-surface-variant);
-      font-family: "JetBrains Mono", monospace;
-    }
-
-    .chip.connected {
-      color: var(--lime);
-      border-color: rgba(205, 242, 0, 0.58);
-      box-shadow: var(--glow);
-    }
-
-    .chip.warn {
-      color: var(--yellow);
-      border-color: rgba(255, 226, 76, 0.45);
-    }
-
-    #page-container {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .page {
-      position: absolute;
-      inset: 0;
-      overflow-y: auto;
-      padding: 24px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--outline-variant) transparent;
-    }
-
-    .page.hidden {
-      display: none;
-    }
-
-    .page::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    .page::-webkit-scrollbar-thumb {
-      background: var(--outline-variant);
-      border-radius: 999px;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: var(--space-3);
-      max-width: 1260px;
-      margin: 0 auto;
-    }
-
-    .hero {
-      grid-column: span 8;
-      background: linear-gradient(160deg, rgba(19, 27, 46, 0.94), rgba(34, 42, 61, 0.9));
-      border: 1px solid var(--outline-variant);
-      border-top: 2px solid var(--lime-dim);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      right: -70px;
-      top: -70px;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(205, 242, 0, 0.28), transparent 68%);
-      pointer-events: none;
-    }
-
-    .panel {
-      background: var(--surface-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      transition: border-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .panel:hover {
-      border-color: rgba(205, 242, 0, 0.4);
-      transform: translateY(-2px);
-    }
-
-    .streak {
-      grid-column: span 4;
-    }
-
-    .activity {
-      grid-column: span 12;
-    }
-
-    .quick-card {
-      grid-column: span 4;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .meter {
+    #editor-host {
       width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--surface-highest);
-      overflow: hidden;
-      border: 1px solid rgba(143, 147, 120, 0.25);
-    }
-
-    .meter-fill {
       height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, var(--yellow), var(--lime));
-    }
-
-    .activity-grid {
-      display: grid;
-      grid-template-columns: repeat(15, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    .calendar-heatmap-shell {
-      position: relative;
-      border-radius: calc(var(--radius-lg) + 2px);
-      padding: 1px;
-      background: linear-gradient(
-        125deg,
-        rgba(205, 242, 0, 0.46) 0%,
-        rgba(255, 226, 76, 0.22) 32%,
-        rgba(143, 147, 120, 0.26) 68%,
-        rgba(69, 73, 50, 0.72) 100%
-      );
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
       overflow: hidden;
-    }
-
-    .calendar-heatmap-shell::before {
-      content: "";
-      position: absolute;
-      left: -120px;
-      top: -88px;
-      width: 320px;
-      height: 210px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(205, 242, 0, 0.22) 0%, rgba(205, 242, 0, 0) 72%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .calendar-heatmap-shell::after {
-      content: "";
-      position: absolute;
-      right: -110px;
-      bottom: -86px;
-      width: 280px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 226, 76, 0.18) 0%, rgba(255, 226, 76, 0) 74%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .calendar-heatmap-host {
-      position: relative;
-      border: 1px solid rgba(143, 147, 120, 0.24);
-      border-radius: calc(var(--radius-lg) + 1px);
-      background:
-        linear-gradient(180deg, rgba(8, 15, 31, 0.97) 0%, rgba(13, 21, 40, 0.95) 44%, rgba(18, 29, 52, 0.9) 100%),
-        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 42px);
-      padding: 18px 16px 12px;
-      overflow-x: auto;
-      min-height: 188px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--outline-variant) transparent;
-      z-index: 1;
-    }
-
-    .calendar-heatmap-host::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .calendar-heatmap-host::-webkit-scrollbar-thumb {
-      background: var(--outline-variant);
-      border-radius: 999px;
-    }
-
-    .calendar-heatmap-host .vch__container,
-    .calendar-heatmap-host .vch__wrapper {
-      min-width: 780px;
-    }
-
-    .calendar-heatmap-host svg {
-      display: block;
-      overflow: visible;
-    }
-
-    .calendar-heatmap-host text {
-      fill: rgba(218, 226, 253, 0.78) !important;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 11px;
-      letter-spacing: 0.01em;
-    }
-
-    .calendar-heatmap-host rect {
-      stroke: rgba(143, 147, 120, 0.3);
-      stroke-width: 0.8px;
-      rx: 2.5;
-      ry: 2.5;
-      transition: transform 0.15s ease, filter 0.2s ease, stroke 0.2s ease;
-      transform-box: fill-box;
-      transform-origin: center;
-    }
-
-    .calendar-heatmap-host rect:hover {
-      transform: translateY(-1px) scale(1.06);
-      stroke: rgba(205, 242, 0, 0.55);
-      filter: drop-shadow(0 0 6px rgba(205, 242, 0, 0.24));
-    }
-
-    .calendar-heatmap-host .vch__legend {
-      margin-top: 10px;
-      color: var(--on-surface-variant);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 11px;
-    }
-
-    .calendar-heatmap-legend-band {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px 12px;
-      border-top: 1px solid rgba(143, 147, 120, 0.24);
-      background: linear-gradient(180deg, rgba(19, 27, 46, 0.86), rgba(12, 19, 34, 0.9));
-      font-family: "JetBrains Mono", monospace;
-      font-size: 11px;
-      color: var(--on-surface-variant);
-    }
-
-    .calendar-heatmap-ramp {
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .calendar-heatmap-ramp i {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      border: 1px solid rgba(143, 147, 120, 0.26);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-    }
-
-    .calendar-heatmap-fallback {
-      min-height: 120px;
-    }
-
-    .heat {
-      aspect-ratio: 1;
-      border-radius: 4px;
-      border: 1px solid rgba(143, 147, 120, 0.12);
-      opacity: 0.86;
-      transition: opacity 0.2s ease;
-    }
-
-    .heat:hover {
-      opacity: 1;
-    }
-
-    .editor-wrap {
-      max-width: 1320px;
-      margin: 0 auto;
-      display: grid;
-      gap: 16px;
-    }
-
-    .editor-toolbar {
-      background: var(--surface-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      padding: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .btn {
-      border: 1px solid var(--outline-variant);
-      background: var(--surface-high);
-      color: var(--on-surface-variant);
-      border-radius: var(--radius-sm);
-      padding: 8px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn:hover {
-      color: var(--lime);
-      border-color: rgba(205, 242, 0, 0.52);
-    }
-
-    .btn.primary {
-      background: var(--lime-dim);
-      border-color: var(--lime-dim);
-      color: #1d2400;
-      box-shadow: var(--glow);
-    }
-
-    .btn.primary:hover {
-      background: var(--lime);
-      border-color: var(--lime);
-      color: #151a00;
-    }
-
-    .btn.warn {
-      color: var(--yellow);
-      border-color: rgba(255, 226, 76, 0.46);
-    }
-
-    .btn:disabled {
-      cursor: wait;
-      opacity: 0.7;
-    }
-
-    .workspace {
-      display: flex;
-      min-height: 660px;
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      background: var(--surface-low);
-    }
-
-    .workspace-left,
-    .workspace-right {
-      min-width: 0;
-      padding: 14px;
-    }
-
-    .workspace-left {
-      width: 70%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 10px;
-      background: #000;
-    }
-
-    .workspace-right {
-      width: 30%;
-      border-left: 1px solid var(--outline-variant);
-      background: var(--surface);
-      display: grid;
-      grid-template-rows: auto auto auto 1fr auto;
-      gap: 10px;
-    }
-
-    .gutter.gutter-horizontal {
-      width: 8px;
-      background: linear-gradient(180deg, var(--surface-highest), var(--surface));
-      border-left: 1px solid var(--outline-variant);
-      border-right: 1px solid var(--outline-variant);
-      cursor: col-resize;
-      position: relative;
-    }
-
-    .gutter.gutter-horizontal::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 14px;
-      bottom: 14px;
-      width: 2px;
-      transform: translateX(-50%);
-      border-radius: 999px;
-      background: rgba(143, 147, 120, 0.5);
-    }
-
-    .editor-head {
-      background: rgba(23, 31, 51, 0.8);
-      border: 1px solid rgba(143, 147, 120, 0.35);
-      border-radius: var(--radius-sm);
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 12px;
-      color: var(--on-surface-variant);
-    }
-
-    .cm-wrap {
-      border: 1px solid rgba(143, 147, 120, 0.35);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      min-height: 380px;
-      background: #000;
-    }
-
-    .CodeMirror {
-      height: 100%;
-      min-height: 380px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    #fallback-editor {
-      display: none;
-      width: 100%;
-      min-height: 380px;
-      background: #000;
-      border: 0;
-      color: #dae2fd;
-      padding: 14px;
-      resize: vertical;
-      outline: none;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .console {
-      border: 1px solid rgba(143, 147, 120, 0.35);
-      border-radius: var(--radius-sm);
-      background: #0c1223;
-      min-height: 150px;
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr;
-    }
-
-    .console-head {
-      border-bottom: 1px solid rgba(143, 147, 120, 0.28);
-      padding: 8px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--on-surface-variant);
-      font-family: "JetBrains Mono", monospace;
-    }
-
-    .console-log {
-      margin: 0;
-      list-style: none;
-      padding: 10px;
-      display: grid;
-      gap: 6px;
-      overflow-y: auto;
-      max-height: 200px;
-    }
-
-    .log-item {
-      border: 1px solid rgba(143, 147, 120, 0.32);
-      border-radius: var(--radius-sm);
-      padding: 6px 8px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 12px;
-      color: var(--on-surface-variant);
-      background: rgba(6, 14, 32, 0.85);
-    }
-
-    .log-item.success {
-      border-left: 3px solid var(--lime-dim);
-      color: #d9ef96;
-    }
-
-    .log-item.warn {
-      border-left: 3px solid var(--yellow);
-      color: #ffe990;
-    }
-
-    .log-item.error {
-      border-left: 3px solid var(--danger);
-      color: #ffd3cc;
-    }
-
-    .ai-card {
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-sm);
-      background: rgba(19, 27, 46, 0.9);
-      padding: 10px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .ai-label {
-      margin: 0;
-      color: var(--yellow-dim);
-      text-transform: uppercase;
-      font-size: 12px;
-      font-family: "JetBrains Mono", monospace;
-      letter-spacing: 0.06em;
-    }
-
-    .ai-topic-input,
-    .text-notes,
-    .theme-select {
-      width: 100%;
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-sm);
-      background: var(--surface-high);
-      color: var(--on-surface);
-      padding: 8px 10px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .ai-topic-input:focus,
-    .text-notes:focus,
-    .theme-select:focus {
-      border-color: rgba(205, 242, 0, 0.58);
-      box-shadow: var(--glow);
-    }
-
-    .topic-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .topic-chip {
-      border: 1px solid rgba(255, 226, 76, 0.35);
-      border-radius: 999px;
-      background: rgba(226, 198, 45, 0.12);
-      color: #ffe990;
-      padding: 4px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: "JetBrains Mono", monospace;
-      transition: all 0.2s ease;
-    }
-
-    .topic-chip:hover {
-      border-color: rgba(255, 226, 76, 0.6);
-      background: rgba(226, 198, 45, 0.18);
-    }
-
-    .assistant-feed {
-      margin: 0;
-      list-style: none;
-      padding: 0;
-      display: grid;
-      gap: 8px;
-      overflow-y: auto;
-      max-height: 220px;
-    }
-
-    .assistant-msg {
-      border: 1px solid rgba(143, 147, 120, 0.32);
-      border-radius: var(--radius-sm);
-      background: rgba(6, 14, 32, 0.7);
-      padding: 8px;
-      font-size: 13px;
-      line-height: 1.45;
-      color: var(--on-surface-variant);
-    }
-
-    .assistant-msg.system {
-      border-left: 3px solid rgba(143, 147, 120, 0.55);
-    }
-
-    .assistant-msg.success {
-      border-left: 3px solid var(--lime-dim);
-      color: #d9ef96;
-    }
-
-    .assistant-msg.error {
-      border-left: 3px solid var(--danger);
-      color: #ffd3cc;
-    }
-
-    .text-notes {
-      min-height: 110px;
-      resize: vertical;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .kpi {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .kpi strong {
-      color: var(--lime);
-      font-family: "JetBrains Mono", monospace;
-    }
-
-    .section-title {
-      max-width: 1260px;
-      margin: 0 auto 20px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 42px;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-
-    .section-title p {
-      margin: 8px 0 0;
-      color: var(--on-surface-variant);
-      font-size: 17px;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 1240px) {
-      .workspace {
-        flex-direction: column;
-      }
-
-      .workspace-left,
-      .workspace-right {
-        width: 100%;
-      }
-
-      .workspace-right {
-        border-left: 0;
-        border-top: 1px solid var(--outline-variant);
-      }
-
-      .gutter {
-        display: none;
-      }
-
-      .hero,
-      .streak,
-      .quick-card,
-      .activity {
-        grid-column: span 12;
-      }
-    }
-
-    @media (max-width: 980px) {
-      .side-nav {
-        display: none;
-      }
-
-      .topbar-search {
-        width: 200px;
-      }
-
-      .section-title h2 {
-        font-size: 30px;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .topbar {
-        padding: 0 12px;
-      }
-
-      .topbar-search {
-        display: none;
-      }
-
-      .page {
-        padding: 14px;
-      }
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
     }
   </style>
 </head>
-<body>
-  <div id="app">
-    <nav class="side-nav">
-      <div class="brand">
-        <h1>bePythonic</h1>
-        <p>Kinetic Logic Studio</p>
+<body class="h-full bg-slate-50 text-slate-900 antialiased overflow-hidden select-none">
+
+  <!-- Welcome Page -->
+  <section id="welcome-screen" class="welcome-screen">
+    <div class="max-w-md w-full mx-4 p-8 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl text-center">
+      <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 018.75 5.841c-.893.233-1.782.507-2.658.814m-15.482 0a50.58 50.58 0 003.528 7.643m11.954-7.643a50.58 50.58 0 013.528 7.643m-14.73 1.579a48.514 48.514 0 004.91 5.922m7.41-5.922a48.514 48.514 0 014.91 5.922M12 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">bePythonic</h1>
+      <p class="text-xs font-semibold tracking-widest text-indigo-600 uppercase mb-4">Python Learning Companion</p>
+      <p class="text-slate-500 mb-8 text-xs leading-relaxed max-w-sm mx-auto">
+        Step into an interactive, beautifully structured local course sandbox with Gemini-powered debugging tutors.
+      </p>
+      
+      <button id="enter-studio-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-white transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-md">
+        Start Learning Python
+      </button>
+      <div class="text-[10px] text-slate-400 font-mono mt-4">Local host offline learning platform</div>
+    </div>
+  </section>
+
+  <!-- Complete Workspace Shell with Top Bar Navigation -->
+  <div id="app-shell" class="h-full flex flex-col opacity-0 overflow-hidden" style="background-color: var(--bg-color);">
+    
+    <!-- Unified Top Navigation Bar (Sleek Glassmorphism Style) -->
+    <nav class="h-14 glass-nav flex items-center justify-between px-6 shrink-0 select-none z-40">
+      
+      <!-- Left side: Platform identity and bridge status -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎓</span>
+          <span class="text-base font-bold bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">bePythonic</span>
+        </div>
+        <div class="h-4 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-1.5 bg-white/60 border border-slate-100 rounded-lg px-2.5 py-1">
+          <span class="w-1.5 h-1.5 rounded-full" id="bridge-dot" style="background-color: #ef4444;"></span>
+          <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider" id="bridge-status">Connecting...</span>
+        </div>
       </div>
 
-      <div class="nav-list">
-        <button class="nav-item active" data-page="dashboard" type="button">
-          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-          <span>Dashboard</span>
+      <!-- Center: Navigation Tabs (Expanded UX) -->
+      <div class="flex items-center gap-1.5 select-none bg-slate-100/50 p-1 rounded-xl border border-slate-200/50">
+        <button class="nav-tab active flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold" data-tab="home">
+          <span>👤</span>
+          <span>Profile & Stats</span>
         </button>
-        <button class="nav-item" data-page="editor" type="button">
-          <span class="material-symbols-outlined">code</span>
-          <span>Editor</span>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="lessons">
+          <span>📚</span>
+          <span>Curriculum</span>
         </button>
-        <button class="nav-item" type="button">
-          <span class="material-symbols-outlined">menu_book</span>
-          <span>Library</span>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="playground">
+          <span>💻</span>
+          <span>Playground</span>
         </button>
-        <button class="nav-item" type="button">
-          <span class="material-symbols-outlined">group</span>
-          <span>Community</span>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="tutor">
+          <span>💬</span>
+          <span>AI Tutor Chat</span>
         </button>
-        <button class="nav-item" type="button">
-          <span class="material-symbols-outlined">settings</span>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="explore">
+          <span>🌐</span>
+          <span>Explore</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="settings">
+          <span>⚙️</span>
           <span>Settings</span>
         </button>
       </div>
 
-      <div class="nav-footer">
-        <button class="btn primary" id="nav-start-coding" type="button">
-          <span class="material-symbols-outlined">bolt</span>
-          Open Editor
-        </button>
-        <div class="chip" id="bridge-chip">Bridge: connecting...</div>
+      <!-- Right side: Streak -->
+      <div class="flex items-center gap-4">
+        <div class="bg-amber-50 border border-amber-100 text-amber-700 font-bold text-[10px] px-3 py-1 rounded-xl flex items-center gap-1 select-none">
+          <span>🔥</span>
+          <span><span id="topbar-streak-counter">3</span> Day Streak</span>
+        </div>
+        <div class="text-[10px] font-mono text-slate-400" id="active-path-breadcrumb">Profile & Stats Overview</div>
       </div>
     </nav>
 
-    <section class="main-shell">
-      <header class="topbar">
-        <div class="topbar-title">
-          <span class="kicker" id="topbar-kicker">Kinetic Logic</span>
-          <h2 class="title" id="topbar-title">Dashboard</h2>
-        </div>
+    <!-- Workspace Subpages Views -->
+    <div class="flex-1 min-h-0 relative z-30">
 
-        <div class="topbar-right">
-          <input class="topbar-search" type="search" placeholder="Search lessons, snippets, bugs..." />
-          <button class="icon-btn" type="button" aria-label="Notifications">
-            <span class="material-symbols-outlined">notifications</span>
-          </button>
-          <button class="icon-btn" type="button" aria-label="Profile">
-            <span class="material-symbols-outlined">account_circle</span>
-          </button>
-        </div>
-      </header>
-
-      <main id="page-container">
-        <section class="page" id="page-dashboard">
-          <div class="section-title">
-            <h2>Welcome back, Coder.</h2>
-            <p>Electric momentum, structured progress, and focused Python practice.</p>
-          </div>
-
-          <div class="dashboard-grid">
-            <article class="hero">
-              <div class="kpi">
-                <span>Current Track</span>
-                <strong>Module 4 / 10</strong>
-              </div>
-              <h3 style="margin: 0; font-size: 32px; line-height: 1.2;">Python Patterns</h3>
-              <p style="margin: 10px 0 22px; color: var(--on-surface-variant); font-size: 16px; max-width: 620px;">
-                Master structural and behavioral patterns in Python with guided broken-code drills.
+      <!-- View A: Profile & Stats Page -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6" id="page-view-home">
+        <div class="max-w-6xl mx-auto space-y-6">
+          
+          <header class="p-6 rounded-2xl glass-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider">Student Portfolio Ledger</div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Coder Profile & Statistics</h2>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-lg">
+                Track your active learning milestones, coding frequencies, resolved compiler errors, and unlocked achievements in one centralized workspace.
               </p>
-              <div class="kpi" style="margin-bottom: 8px;">
-                <span style="font-family: 'JetBrains Mono', monospace; color: var(--on-surface-variant);">Progress</span>
-                <strong id="progress-label">40%</strong>
-              </div>
-              <div class="meter">
-                <div class="meter-fill" id="progress-fill"></div>
-              </div>
-              <div style="margin-top: 24px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                <span style="color: var(--on-surface-variant); font-size: 14px;">~ 35 mins left in this module</span>
-                <button class="btn primary" data-page="editor" type="button">
-                  <span class="material-symbols-outlined">play_arrow</span>
-                  Continue In Editor
-                </button>
-              </div>
-            </article>
+            </div>
+            <button class="py-2 px-4 rounded-xl btn-tactile-primary text-xs font-semibold shrink-0" onclick="switchMainTab('lessons')">
+              Open Python Syllabus
+            </button>
+          </header>
 
-            <article class="panel streak">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <p class="ai-label" style="margin: 0; color: var(--on-surface-variant);">Learning Streak</p>
-                <span class="material-symbols-outlined" style="color: var(--yellow);">local_fire_department</span>
-              </div>
-              <div style="margin-top: 16px; display: flex; align-items: baseline; gap: 8px;">
-                <span style="font-size: 58px; font-weight: 700; line-height: 1; color: var(--lime);">12</span>
-                <span style="color: var(--on-surface-variant);">days</span>
-              </div>
-              <p style="margin: 10px 0 0; color: var(--on-surface-variant); font-size: 14px;">Top 15% consistency this week.</p>
-            </article>
-
-            <article class="panel activity">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h4 style="margin: 0; font-size: 20px;">Activity Heatmap</h4>
-                <span class="chip">Last 12 Months</span>
-              </div>
-              <div class="calendar-heatmap-shell">
-                <div class="calendar-heatmap-host" id="calendar-heatmap-host">
-                  <div id="calendar-heatmap-app"></div>
-                  <div class="activity-grid calendar-heatmap-fallback" id="activity-grid-fallback" style="display: none;"></div>
-                </div>
-                <div class="calendar-heatmap-legend-band">
-                  <span>Low Focus</span>
-                  <span class="calendar-heatmap-ramp" aria-hidden="true">
-                    <i style="background: #0c1428;"></i>
-                    <i style="background: #1a2b49;"></i>
-                    <i style="background: #2f4e72;"></i>
-                    <i style="background: #95b72a;"></i>
-                    <i style="background: #cdf200;"></i>
-                    <i style="background: #ffe24c;"></i>
-                  </span>
-                  <span>High Focus</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="panel quick-card">
-              <span class="material-symbols-outlined" style="color: var(--lime);">code_blocks</span>
-              <div>
-                <h5 style="margin: 0; font-size: 18px;">Daily Challenge</h5>
-                <p style="margin: 4px 0 0; color: var(--on-surface-variant);">Solve one algorithm today.</p>
-              </div>
-            </article>
-            <article class="panel quick-card">
-              <span class="material-symbols-outlined" style="color: var(--yellow);">quiz</span>
-              <div>
-                <h5 style="margin: 0; font-size: 18px;">Quick Quiz</h5>
-                <p style="margin: 4px 0 0; color: var(--on-surface-variant);">Reinforce syntax memory.</p>
-              </div>
-            </article>
-            <article class="panel quick-card">
-              <span class="material-symbols-outlined" style="color: #d9e3f7;">smart_toy</span>
-              <div>
-                <h5 style="margin: 0; font-size: 18px;">AI Tutor</h5>
-                <p style="margin: 4px 0 0; color: var(--on-surface-variant);">Ask for nudges, not full answers.</p>
-              </div>
-            </article>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">LESSONS COMPLETED</div>
+              <div class="text-lg font-bold text-slate-800"><span id="stats-lessons">2</span> / 7</div>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">ACTIVE STREAK</div>
+              <div class="text-lg font-bold text-slate-800">3 Days 🔥</div>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">DRILLS RESOLVED</div>
+              <div class="text-lg font-bold text-slate-800">12 Bugfixes</div>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">AI TUTOR CHATS</div>
+              <div class="text-lg font-bold text-slate-800">24 Queries</div>
+            </div>
           </div>
-        </section>
 
-        <section class="page hidden" id="page-editor">
-          <div class="editor-wrap">
-            <div class="editor-toolbar">
-              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                <span class="chip" id="file-chip">main.py</span>
-                <span class="chip" id="dirty-chip">Saved</span>
-                <span class="chip" id="engine-chip">Editor: loading...</span>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 space-y-6">
+              
+              <!-- Weekly Analytics Graph (Interactive Chart.js line graph) -->
+              <div class="p-6 rounded-2xl glass-card space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="space-y-0.5">
+                    <span class="text-[9px] font-mono font-bold text-indigo-600 uppercase tracking-wider">Learning Performance</span>
+                    <h3 class="text-sm font-bold text-slate-800">Weekly Coding Activity Analytics</h3>
+                  </div>
+                  <div class="flex items-center gap-2 select-none">
+                    <span class="px-2 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-bold">Accuracy: 89%</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-bold">+2.4 hrs today</span>
+                  </div>
+                </div>
+                
+                <div class="relative w-full border border-slate-100 bg-slate-50/40 rounded-xl p-3 h-48">
+                  <canvas id="activity-chart"></canvas>
+                </div>
               </div>
 
-              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                <button class="btn" id="open-btn" type="button"><span class="material-symbols-outlined">folder_open</span>Open</button>
-                <button class="btn" id="save-btn" type="button"><span class="material-symbols-outlined">save</span>Save</button>
-                <button class="btn" id="syntax-btn" type="button"><span class="material-symbols-outlined">rule</span>Syntax</button>
-                <button class="btn" id="copy-btn" type="button"><span class="material-symbols-outlined">content_copy</span>Copy</button>
-                <button class="btn warn" id="clear-btn" type="button"><span class="material-symbols-outlined">ink_eraser</span>Clear</button>
+              <!-- Structured Visual Learning Tree Roadmap -->
+              <div class="p-6 rounded-2xl glass-card space-y-4" id="dashboard-roadmap-container">
+                <!-- Dynamically populated timeline -->
               </div>
+              
             </div>
 
-            <section class="workspace" id="workspace-split">
-              <section class="workspace-left" id="workspace-left">
-                <div class="editor-head">
-                  <span>Code Editor</span>
-                  <span id="cursor-chip">Ln 1, Col 1</span>
-                </div>
-
-                <div class="cm-wrap">
-                  <textarea id="editor-source"></textarea>
-                  <textarea id="fallback-editor" spellcheck="false"></textarea>
-                </div>
-
-                <div class="stats">
-                  <span class="chip" id="line-chip">Lines: 0</span>
-                  <span class="chip" id="char-chip">Chars: 0</span>
-                  <span class="chip" id="sel-chip">Selection: 0</span>
-                  <select class="theme-select" id="theme-select" style="max-width: 170px; padding: 5px 8px;">
-                    <option value="dracula">Theme: Dracula</option>
-                    <option value="material-darker">Theme: Material Darker</option>
-                    <option value="monokai">Theme: Monokai</option>
-                    <option value="cobalt">Theme: Cobalt</option>
-                    <option value="base16-dark">Theme: Base16 Dark</option>
-                  </select>
-                  <button class="btn" id="wrap-btn" type="button">Wrap: Off</button>
-                  <button class="btn" id="font-down" type="button">A-</button>
-                  <button class="btn" id="font-up" type="button">A+</button>
-                </div>
-
-                <section class="console">
-                  <div class="console-head">
-                    <span>OUTPUT CONSOLE</span>
-                    <button class="btn" id="clear-console" type="button">Clear</button>
+            <div class="space-y-6">
+              
+              <!-- Unlocked Achievements Badges Ledger -->
+              <div class="p-5 rounded-2xl border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-4">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider select-none">Unlocked Achievements</h3>
+                <div class="grid grid-cols-2 gap-3 select-none">
+                  <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">🎓</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">First Variable</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Declared memory blocks</span>
                   </div>
-                  <ul class="console-log" id="console-log"></ul>
-                </section>
-              </section>
-
-              <aside class="workspace-right" id="workspace-right">
-                <section class="ai-card">
-                  <p class="ai-label">AI Generator</p>
-                  <input class="ai-topic-input" id="ai-topic" placeholder="Topic, e.g. loops, lists, functions" type="text" />
-                  <button class="btn primary" id="ai-generate" type="button">
-                    <span class="material-symbols-outlined">auto_awesome</span>
-                    Generate Broken Exercise
-                  </button>
-                  <div class="topic-chips">
-                    <button class="topic-chip" data-topic="loops" type="button">loops</button>
-                    <button class="topic-chip" data-topic="lists" type="button">lists</button>
-                    <button class="topic-chip" data-topic="functions" type="button">functions</button>
-                    <button class="topic-chip" data-topic="recursion" type="button">recursion</button>
-                    <button class="topic-chip" data-topic="decorators" type="button">decorators</button>
+                  <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">🛡️</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">AST Guardian</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Passed strict parse syntax</span>
                   </div>
-                </section>
+                  <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">💬</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">Companion</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Consulted AI 5 times</span>
+                  </div>
+                  <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center opacity-40">
+                    <span class="text-3xl">🔥</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">Loop Master</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Break infinite evaluations</span>
+                  </div>
+                </div>
+              </div>
 
-                <section class="ai-card">
-                  <p class="ai-label">AI Feed</p>
-                  <ul class="assistant-feed" id="assistant-feed"></ul>
-                </section>
+              <!-- Active Platform / Sandbox Statistics Ledger -->
+              <div class="p-5 rounded-2xl border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-4">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider select-none">Compiler & Sandbox Statistics</h3>
+                <div class="space-y-3 font-mono text-[10px] text-slate-500">
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Syntax check validator</span>
+                    <span class="text-indigo-600 font-semibold">Active</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Weekly solved rate</span>
+                    <span class="text-indigo-600 font-semibold">7 drills/wk</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Subprocess environment</span>
+                    <span class="text-emerald-500 font-semibold">Healthy</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Sandbox execution limits</span>
+                    <span class="text-emerald-500 font-semibold">5s Enforced</span>
+                  </div>
+                </div>
+              </div>
 
-                <section class="ai-card">
-                  <p class="ai-label">Notes</p>
-                  <textarea class="text-notes" id="notes" placeholder="Capture hypotheses, TODOs, and debugging breadcrumbs."></textarea>
-                </section>
+              <!-- Real AI Tutor Chat Widget on Dashboard -->
+              <div class="p-5 rounded-2xl border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-3 flex flex-col h-80">
+                <div class="flex items-center justify-between shrink-0 select-none">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-indigo-600">💬</span>
+                    <span class="text-sm font-bold text-slate-800">Tutor Dialogue Preview</span>
+                  </div>
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto space-y-2.5 p-1 select-text" id="dashboard-chat-messages-container">
+                </div>
+                
+                <div class="flex gap-2 shrink-0 pt-1.5 border-t">
+                  <label class="sr-only" for="dashboard-chat-input">Tutor Message Quick</label>
+                  <input type="text" id="dashboard-chat-input" placeholder="Type quick query..." class="flex-1 p-2 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                  <button id="dashboard-send-chat-btn" class="px-3 rounded-lg btn-tactile-primary text-xs font-semibold">Send</button>
+                </div>
+              </div>
 
-                <div class="chip" id="syntax-chip">Syntax: not checked</div>
-              </aside>
-            </section>
+            </div>
+
           </div>
-        </section>
-      </main>
-    </section>
+
+        </div>
+      </div>
+
+      <!-- View B: Interactive Course Modules (Curriculum + AI Engine) -->
+      <div class="absolute inset-0 flex min-h-0 hidden" id="page-view-lessons">
+        
+        <!-- Left Column Sidebar: Course outline selection grouped by Accordions -->
+        <aside class="w-64 border-r bg-white/70 backdrop-blur-md flex flex-col shrink-0 overflow-hidden" style="border-color: var(--border-color);">
+          <div class="p-3 border-b flex items-center justify-between bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">CURRICULUM</span>
+            <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 text-[10px] font-bold" id="lessons-count-badge">0</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-3 space-y-4" id="lessons-list-sidebar">
+            <!-- Dynamically populated concept blocks and lessons -->
+          </div>
+          <!-- AI Generator CTA in sidebar -->
+          <div class="p-3 border-t bg-slate-50" style="border-color: var(--border-color);">
+            <button class="w-full py-2 px-4 rounded-xl btn-tactile-secondary text-xs font-semibold flex items-center justify-center gap-1.5 text-indigo-600" onclick="showAiLessonGenerator()">
+              <span>✨</span> Generate Lesson
+            </button>
+          </div>
+        </aside>
+
+        <!-- Right Main Column: Unified lesson reading panel -->
+        <div class="flex-1 flex flex-col bg-white min-h-0 overflow-y-auto">
+          <div class="max-w-3xl mx-auto p-8 w-full select-text" id="lessons-detail-container">
+            <div class="flex flex-col items-center justify-center h-full text-center space-y-4 mt-20 opacity-60">
+              <span class="text-4xl">📚</span>
+              <p class="text-sm font-medium">Select a course module from the left sidebar catalog to begin reading.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- View C: Dedicated Spacing Playground Editor (Separate Workspace) -->
+      <div class="absolute inset-0 flex min-h-0 hidden" id="page-view-playground">
+        
+        <div class="w-72 border-r bg-white/70 backdrop-blur-md flex flex-col shrink-0 overflow-hidden" style="border-color: var(--border-color);">
+          <div class="p-3 border-b bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">ACTIVE DRILL TASK</span>
+          </div>
+          <div class="p-4 space-y-4 flex-1 overflow-y-auto select-text">
+            <h3 class="text-sm font-bold text-slate-800" id="playground-instructions-title">Custom Sandbox Playground</h3>
+            <div id="playground-instructions-body" class="space-y-3">
+              <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                You are in the free coding sandbox. You can open external python scripts, write random functions, check syntax, and execute processes.
+              </p>
+              <div class="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 text-[11px] leading-relaxed text-slate-600">
+                🚀 To practice a specific curriculum topic, head to the <strong>Curriculum</strong> tab, select a module, and click <strong>🚀 Practice in Playground</strong> to inject its broken code here.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-slate-50 min-h-0">
+          <div class="h-10 flex items-center justify-between border-b px-4 shrink-0 bg-white" style="border-color: var(--border-color);">
+            <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 select-none">
+              <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
+              <span class="font-semibold">practice_playground.py</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500" id="dirty-status-dot"></span>
+            </div>
+            
+            <div class="flex items-center gap-2 select-none">
+              <button class="py-1 px-2.5 rounded btn-tactile-secondary text-[11px] font-semibold" id="workspace-action-open" title="Open .py File">
+                Open File
+              </button>
+              <button class="py-1 px-3 rounded btn-tactile-primary text-[11px] font-semibold" id="top-run-btn">
+                Run Challenge (F5)
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-1 p-4 flex flex-col min-h-0 relative">
+            <div class="flex-1 min-h-0">
+              <div id="editor-host"></div>
+              <textarea id="source-code" spellcheck="false"></textarea>
+            </div>
+
+            <div class="h-48 mt-3 flex flex-col rounded-xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm">
+              <div class="h-8 border-b px-3 flex items-center justify-between select-none shrink-0 bg-slate-50">
+                <span class="text-[9px] font-mono font-bold text-slate-500">SANDBOX OUTPUT CONSOLE</span>
+                
+                <div class="flex items-center gap-2">
+                  <button class="opacity-70 hover:opacity-100 p-0.5 rounded text-indigo-600" id="terminal-action-check" title="Run AST Syntax Check">
+                    <span class="text-[10px] font-bold font-mono">AST CHECK</span>
+                  </button>
+                  <button class="opacity-70 hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-slate-600" id="clear-terminal-btn" title="Clear logs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex-1 overflow-auto p-3 font-mono text-[11px] bg-slate-950 text-slate-200" id="terminal-content">
+                <div class="opacity-40 select-none">Execution stdout / stderr appear here...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View D: Full page AI Tutor Chat Companion -->
+      <div class="absolute inset-0 flex min-h-0 hidden bg-white" id="page-view-tutor">
+        <aside class="w-64 border-r bg-white/70 backdrop-blur-md flex flex-col shrink-0 overflow-hidden" style="border-color: var(--border-color);">
+          <div class="p-3 border-b bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">TUTOR PROMPTS</span>
+          </div>
+          <div class="p-3 space-y-2.5 flex-1 overflow-y-auto">
+            <button class="w-full text-left p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain indentation in Python and why it is mandatory.')">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">🔑 Indentation Syntax</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Learn block indent rules</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('What does NameError mean and how do I solve it?')">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">⚠️ Trace NameError</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Spot local scoping issues</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain variables and integers like I am five.')">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">🧠 Simplified Variables</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Trace values containers</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Give me a 5-question multiple choice quiz on Python basic loops!')">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">📝 Loops sequence quiz</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Test logic progression</span>
+            </button>
+          </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-h-0 bg-slate-50/40">
+          <div class="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col min-h-0" id="chat-messages-container"></div>
+          <div class="p-2.5 border-t flex flex-wrap gap-1.5 bg-white/70 backdrop-blur-md shrink-0" style="border-color: var(--border-color);">
+            <button class="py-1 px-2.5 rounded-lg btn-tactile-secondary text-[10px] font-semibold" onclick="quickTutorQuery('Give me a simple code hint based on my current coding editor session.')">💡 Hint on Code</button>
+            <button class="py-1 px-2.5 rounded-lg btn-tactile-secondary text-[10px] font-semibold" onclick="quickTutorQuery('Explain what is wrong with the code currently loaded in my editor.')">🔍 Analyze Bug</button>
+          </div>
+          <div class="p-3 border-t flex gap-2 bg-white shrink-0" style="border-color: var(--border-color);">
+            <label class="sr-only" for="chat-input">Tutor Message</label>
+            <input type="text" id="chat-input" placeholder="Ask your Python tutor anything... (e.g. explain lists, quiz me)" class="flex-1 p-2.5 rounded-xl text-xs border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            <button id="send-chat-btn" class="px-4.5 rounded-xl btn-tactile-primary text-xs font-semibold">Send Message</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- View E: Explore / Community (Mock) -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6 hidden bg-slate-50" id="page-view-explore">
+        <div class="max-w-6xl mx-auto space-y-6">
+          <header class="p-6 rounded-2xl glass-card text-center space-y-2">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Community Explore</h2>
+            <p class="text-sm text-slate-500">Discover user-created lessons, custom AI challenges, and popular topics.</p>
+          </header>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Mock items -->
+            <div class="p-5 rounded-2xl glass-card flex flex-col gap-3">
+              <span class="text-xs font-bold text-indigo-600 font-mono">TRENDING</span>
+              <h3 class="text-sm font-bold text-slate-800">Advanced List Comprehensions</h3>
+              <p class="text-xs text-slate-500 flex-1">Explore concise syntax for creating lists in a single line. Generated by AI Tutor.</p>
+              <button class="w-full py-1.5 rounded-lg btn-tactile-secondary text-[10px] font-semibold">Preview Concept</button>
+            </div>
+            <div class="p-5 rounded-2xl glass-card flex flex-col gap-3">
+              <span class="text-xs font-bold text-emerald-600 font-mono">NEW</span>
+              <h3 class="text-sm font-bold text-slate-800">Understanding 'kwargs'</h3>
+              <p class="text-xs text-slate-500 flex-1">A deep dive into dictionary unpacking in function arguments.</p>
+              <button class="w-full py-1.5 rounded-lg btn-tactile-secondary text-[10px] font-semibold">Preview Concept</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View F: Settings (Mock) -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6 hidden bg-slate-50" id="page-view-settings">
+        <div class="max-w-3xl mx-auto space-y-6">
+          <header class="p-6 rounded-2xl glass-card">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Platform Settings</h2>
+            <p class="text-sm text-slate-500 mt-1">Configure Gemini API models, appearance, and editor preferences.</p>
+          </header>
+          
+          <div class="p-6 rounded-2xl glass-card space-y-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider font-mono border-b pb-2">AI Configuration</h3>
+            <div class="space-y-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-slate-700">Preferred Model</label>
+                <select class="p-2 rounded-lg border border-slate-200 text-xs bg-slate-50">
+                  <option>gemini-3.5-flash (Default)</option>
+                  <option>gemini-2.5-pro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="h-6 light-status-bar flex items-center justify-between px-4 text-[10px] font-mono select-none shrink-0 border-t" style="color: var(--muted-color); border-color: var(--border-color); background-color: var(--bar-bg);">
+      <div class="flex items-center gap-4">
+        <span>Language: Python 3</span>
+        <span>|</span>
+        <span id="editor-cursor-pos">Ln 1, Col 1</span>
+        <span>|</span>
+        <span id="dirty-label" class="text-indigo-600 font-bold">Clean</span>
+        <span>|</span>
+        <span id="syntax-status-label" class="text-emerald-600 font-bold">No Syntax Errors</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="opacity-80">Platform Host: bepythonic.local</span>
+      </div>
+    </footer>
+
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
-
   <script>
-    const STARTER_CODE = [
-      "# Kinetic Logic exercise starter",
-      "def normalize_scores(values):",
-      "    cleaned = [value for value in values if value >= 0]",
-      "    total = sum(cleaned)",
-      "    if total == 0:",
-      "        return []",
-      "    return [round(value / total, 3) for value in cleaned]",
-      "",
-      "if __name__ == '__main__':",
-      "    scores = [10, 20, 5, 15]",
-      "    print(normalize_scores(scores))",
-      "",
-    ].join("\n");
-
-    const HEATMAP_COLOR_RANGE = [
-      "#0c1428",
-      "#1a2b49",
-      "#2f4e72",
-      "#95b72a",
-      "#cdf200",
-      "#ffe24c",
-    ];
-    const HEATMAP_FALLBACK_LEVELS = [
-      0.22, 0.71, 0.42, 0.9, 0.37, 0.16, 0.66, 0.58, 0.31, 0.45,
-      0.83, 0.12, 0.56, 0.74, 0.27, 0.39, 0.61, 0.95, 0.48, 0.2,
-      0.54, 0.8, 0.67, 0.28, 0.88, 0.35, 0.52, 0.13, 0.77, 0.63,
-    ];
-
-    const PAGE_META = {
-      dashboard: {
-        title: "Dashboard",
-        kicker: "Kinetic Logic",
-      },
-      editor: {
-        title: "Editor Studio",
-        kicker: "CodeMirror + AI Bridge",
-      },
+    const state = {
+      backend: null,
+      monaco: null,
+      monacoEditor: null,
+      fallbackEditor: null,
+      isDirty: false,
+      currentPage: "home",
+      currentLessonId: null,
+      chatHistory: []
     };
 
-    const pageDashboard = document.getElementById("page-dashboard");
-    const pageEditor = document.getElementById("page-editor");
-    const topbarTitle = document.getElementById("topbar-title");
-    const topbarKicker = document.getElementById("topbar-kicker");
+    const ui = {
+      appShell: document.getElementById("app-shell"),
+      welcomeScreen: document.getElementById("welcome-screen"),
+      enterStudioBtn: document.getElementById("enter-studio-btn"),
+      bridgeStatus: document.getElementById("bridge-status"),
+      bridgeDot: document.getElementById("bridge-dot"),
+      
+      chatInput: document.getElementById("chat-input"),
+      sendChatBtn: document.getElementById("send-chat-btn"),
+      dashChatInput: document.getElementById("dashboard-chat-input"),
+      dashSendChatBtn: document.getElementById("dashboard-send-chat-btn"),
+      
+      editorHost: document.getElementById("editor-host"),
+      sourceCode: document.getElementById("source-code"),
+      terminalContent: document.getElementById("terminal-content"),
+      
+      cursorPos: document.getElementById("editor-cursor-pos"),
+      dirtyLabel: document.getElementById("dirty-label"),
+      dirtyDot: document.getElementById("dirty-status-dot"),
+      syntaxStatus: document.getElementById("syntax-status-label"),
+      activePathBreadcrumb: document.getElementById("active-path-breadcrumb"),
+      
+      topRunBtn: document.getElementById("top-run-btn"),
+      terminalActionCheck: document.getElementById("terminal-action-check"),
+      clearTerminalBtn: document.getElementById("clear-terminal-btn")
+    };
 
-    const bridgeChip = document.getElementById("bridge-chip");
-    const fileChip = document.getElementById("file-chip");
-    const dirtyChip = document.getElementById("dirty-chip");
-    const engineChip = document.getElementById("engine-chip");
-    const lineChip = document.getElementById("line-chip");
-    const charChip = document.getElementById("char-chip");
-    const selChip = document.getElementById("sel-chip");
-    const cursorChip = document.getElementById("cursor-chip");
-    const syntaxChip = document.getElementById("syntax-chip");
-    const consoleLog = document.getElementById("console-log");
-    const assistantFeed = document.getElementById("assistant-feed");
-    const themeSelect = document.getElementById("theme-select");
-    const fallbackEditor = document.getElementById("fallback-editor");
+    // Master curriculum content
+    let COURSE_CURRICULUM = [
+      {
+        conceptId: "variables-data",
+        conceptTitle: "01. Variables & Types",
+        summary: "Master value assignments, integers, floating structures, and mathematical traps.",
+        lessons: [
+          {
+            id: "var-intro",
+            title: "Variables (Intro)",
+            level: "Beginner",
+            minutes: 5,
+            summary: "Understand how variables store values sequentially in memory.",
+            objectives: [
+              "Identify correct variable assignment directions",
+              "Recognize how string literals are evaluated"
+            ],
+            blocks: [
+              {
+                heading: "Variables Concept",
+                body: "A variable is like a named box. You define them using <code>=</code> in Python. Keep in mind: the variable name MUST reside on the left, and its value on the right!"
+              }
+            ],
+            starter: "# Variables Assignment\n\"Ava\" = name  # Bug: variable name must be on the left!\nprint(f\"Hello {name}!\")\n"
+          }
+        ]
+      },
+      {
+        conceptId: "control-flow",
+        conceptTitle: "02. Control Flow",
+        summary: "Direct sequential operations using branch conditions and loops.",
+        lessons: [
+          {
+            id: "cf-conditionals",
+            title: "Conditional Statements",
+            level: "Beginner",
+            minutes: 12,
+            summary: "Implement logical branching structures with if/elif/else.",
+            objectives: [
+              "Master 4-space indentation scoping rules",
+              "Trace conditional operators"
+            ],
+            blocks: [
+              {
+                heading: "Logical branching",
+                body: "Conditions evaluate true or false states. Remember that Python strictly mandates 4 spaces of indentation inside branching blocks!"
+              }
+            ],
+            starter: "# Conditional logic branching practice\nscore = 70\nif score > 70:  # Bug: Change > to >= to pass at 70!\n    print(\"Result: Pass\")\nelse:\n    print(\"Result: Fail\")\n"
+          }
+        ]
+      }
+    ];
 
-    let backend = null;
-    let codeMirror = null;
-    let calendarHeatmapVm = null;
-    let fallbackMode = false;
-    let wrapEnabled = false;
-    let currentFontSize = 14;
+    function boot() {
+      initMonacoEditor();
+      renderLessonsSidebarList();
+      renderDashboardRoadmap();
+      bindInteractiveUiEvents();
+      initQtBridgeConnection();
+      
+      appendTutorMessage("assistant", "Welcome to the conversational tutor chat! I'm here to clarify complicated error messages, quiz your comprehension of variables or arrays, and offer hints for lesson exercises. Ask me any question below!");
 
-    function parsePayload(rawPayload) {
-      if (typeof rawPayload === "string") {
-        try {
-          return JSON.parse(rawPayload);
-        } catch (_error) {
-          return {};
+      setTimeout(() => {
+        initActivityChart();
+      }, 300);
+      
+      if (window.gsap) {
+        gsap.to(ui.welcomeScreen, { opacity: 1, duration: 0.35 });
+      }
+    }
+
+    // Real Chart.js rendering
+    function initActivityChart() {
+      const canvas = document.getElementById("activity-chart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+      gradient.addColorStop(0, "rgba(79, 70, 229, 0.16)");
+      gradient.addColorStop(1, "rgba(79, 70, 229, 0.0)");
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Hours Spent',
+            data: [1.2, 0.8, 1.6, 2.4, 1.4, 3.1, 2.7],
+            borderColor: '#4f46e5',
+            borderWidth: 2,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.38,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4f46e5',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#4f46e5',
+            pointHoverBorderColor: '#ffffff',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleFont: { family: 'Space Grotesk', size: 10, weight: 'bold' },
+              bodyFont: { family: 'IBM Plex Mono', size: 9 },
+              padding: 8,
+              cornerRadius: 8,
+              displayColors: false
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'IBM Plex Mono', size: 8 }, color: '#94a3b8' } },
+            y: { grid: { color: '#f1f5f9' }, ticks: { font: { family: 'IBM Plex Mono', size: 8 }, color: '#94a3b8', stepSize: 1 } }
+          }
         }
-      }
-      if (rawPayload && typeof rawPayload === "object") {
-        return rawPayload;
-      }
-      return {};
+      });
     }
 
-    function addConsole(kind, message) {
-      const item = document.createElement("li");
-      item.className = `log-item ${kind}`;
-      const stamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      item.textContent = `[${stamp}] ${message}`;
-      consoleLog.prepend(item);
-      while (consoleLog.children.length > 50) {
-        consoleLog.removeChild(consoleLog.lastChild);
-      }
+    function initMonacoEditor() {
+      const MONACO_BASE_PATH = "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs";
+      const enableFallback = () => {
+        ui.editorHost.style.display = "none";
+        ui.sourceCode.classList.add("fallback-active");
+        state.fallbackEditor = ui.sourceCode;
+        ui.sourceCode.addEventListener("input", () => { setDirty(true); updateEditorStats(); });
+        updateEditorStats();
+      };
+      if (!window.require) { enableFallback(); return; }
+      window.MonacoEnvironment = {
+        getWorkerUrl: function (workerId, label) {
+          const source = [`self.MonacoEnvironment = { baseUrl: '${MONACO_BASE_PATH}/' };`, `importScripts('${MONACO_BASE_PATH}/base/worker/workerMain.js');`].join("\n");
+          return `data:text/javascript;charset=utf-8,${encodeURIComponent(source)}`;
+        }
+      };
+      window.require.config({ paths: { vs: MONACO_BASE_PATH } });
+      window.require(["vs/editor/editor.main"], () => {
+        if (!window.monaco || !window.monaco.editor) { enableFallback(); return; }
+        state.monaco = window.monaco;
+        ui.editorHost.style.display = "block";
+        ui.sourceCode.classList.remove("fallback-active");
+        state.monacoEditor = state.monaco.editor.create(ui.editorHost, {
+          value: ui.sourceCode.value, language: "python", theme: "vs", automaticLayout: true, minimap: { enabled: false },
+          fontFamily: "IBM Plex Mono", fontSize: 13, tabSize: 4, insertSpaces: true, autoClosingBrackets: "always", matchBrackets: "always", scrollBeyondLastLine: false, padding: { top: 12, bottom: 12 }
+        });
+        state.monacoEditor.onDidChangeModelContent(() => { setDirty(true); updateEditorStats(); });
+        state.monacoEditor.onDidChangeCursorPosition(() => { updateEditorStats(); });
+        updateEditorStats();
+      }, () => { enableFallback(); });
     }
 
-    function addAssistant(kind, message) {
-      const item = document.createElement("li");
-      item.className = `assistant-msg ${kind}`;
-      item.textContent = message;
-      assistantFeed.prepend(item);
-      while (assistantFeed.children.length > 18) {
-        assistantFeed.removeChild(assistantFeed.lastChild);
-      }
-    }
-
-    function setBridgeStatus(connected) {
-      bridgeChip.classList.toggle("connected", connected);
-      bridgeChip.textContent = connected ? "Bridge: Qt connected" : "Bridge: preview mode";
-    }
-
-    function setDirtyState(isDirty) {
-      dirtyChip.textContent = isDirty ? "Unsaved" : "Saved";
-      dirtyChip.classList.toggle("warn", isDirty);
-    }
-
-    function getCodeValue() {
-      if (codeMirror) {
-        return codeMirror.getValue();
-      }
-      return fallbackEditor.value;
-    }
-
-    function setCodeValue(nextCode) {
-      const safeCode = typeof nextCode === "string" ? nextCode : "";
-      if (codeMirror) {
-        codeMirror.setValue(safeCode);
-      } else {
-        fallbackEditor.value = safeCode;
-      }
-      updateEditorStats();
-      setDirtyState(false);
-    }
-
+    function getCodeValue() { return state.monacoEditor ? state.monacoEditor.getValue() : ui.sourceCode.value; }
+    function setCodeValue(nextCode) { state.monacoEditor ? state.monacoEditor.setValue(nextCode) : ui.sourceCode.value = nextCode; setDirty(false); updateEditorStats(); }
+    
     function updateEditorStats() {
-      const text = getCodeValue();
-      const lines = text ? text.split("\n").length : 0;
-      lineChip.textContent = `Lines: ${lines}`;
-      charChip.textContent = `Chars: ${text.length}`;
-
-      let selected = 0;
-      if (codeMirror) {
-        selected = codeMirror.getSelection().length;
-        const cursor = codeMirror.getCursor();
-        cursorChip.textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
-      } else {
-        const start = fallbackEditor.selectionStart || 0;
-        const end = fallbackEditor.selectionEnd || 0;
-        selected = Math.max(0, end - start);
+      let cursorStr = "Ln 1, Col 1";
+      if (state.monacoEditor) {
+        const pos = state.monacoEditor.getPosition();
+        if (pos) cursorStr = `Ln ${pos.lineNumber}, Col ${pos.column}`;
       }
-
-      selChip.textContent = `Selection: ${selected}`;
+      ui.cursorPos.textContent = cursorStr;
     }
 
-    function openFindPrompt() {
-      const query = window.prompt("Find text:");
-      if (!query) {
-        return;
-      }
+    function setDirty(dirty) {
+      state.isDirty = Boolean(dirty);
+      if (state.isDirty) { ui.dirtyLabel.textContent = "Unsaved"; ui.dirtyLabel.className = "text-amber-500 font-bold"; ui.dirtyDot.style.backgroundColor = "#f59e0b"; } 
+      else { ui.dirtyLabel.textContent = "Clean"; ui.dirtyLabel.className = "text-indigo-600 font-bold"; ui.dirtyDot.style.backgroundColor = "#4f46e5"; }
+    }
 
-      if (!codeMirror) {
-        addConsole("warn", "Find is limited in fallback mode.");
-        return;
-      }
+    function renderLessonsSidebarList() {
+      let count = 0;
+      COURSE_CURRICULUM.forEach(c => count += c.lessons.length);
+      document.getElementById("lessons-count-badge").textContent = String(count);
+      const container = document.getElementById("lessons-list-sidebar");
+      let html = "";
+      COURSE_CURRICULUM.forEach(concept => {
+        html += `
+          <div class="space-y-1.5">
+            <div class="px-2.5 py-1 rounded-lg bg-slate-50 flex items-center justify-between border border-slate-200/60 select-none">
+              <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wide">${escapeHtml(concept.conceptTitle)}</span>
+              <span class="text-[8px] font-mono bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-bold">${concept.lessons.length} topics</span>
+            </div>
+            <div class="space-y-1 pl-1">
+              ${concept.lessons.map(lesson => `
+                <button class="w-full text-left p-2.5 rounded-lg border border-slate-200/50 bg-white hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-0.5 lesson-card-btn shadow-sm" data-id="${escapeHtml(lesson.id)}">
+                  <span class="text-[7px] font-mono text-indigo-500 font-bold uppercase tracking-wider">${escapeHtml(lesson.level)} · ${lesson.minutes} min</span>
+                  <span class="text-xs font-semibold text-slate-800 block truncate">${escapeHtml(lesson.title)}</span>
+                </button>
+              `).join("")}
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+      container.querySelectorAll(".lesson-card-btn").forEach(btn => {
+        btn.addEventListener("click", () => { selectLesson(btn.dataset.id); });
+      });
+    }
 
-      const cursor = codeMirror.getSearchCursor(query, codeMirror.getCursor());
-      if (cursor.findNext()) {
-        codeMirror.setSelection(cursor.from(), cursor.to());
-        codeMirror.scrollIntoView({ from: cursor.from(), to: cursor.to() }, 110);
-        addConsole("success", `Found: ${query}`);
-        return;
-      }
+    function renderDashboardRoadmap() {
+      const container = document.getElementById("dashboard-roadmap-container");
+      if (!container) return;
+      let html = `<h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2 mb-4"><span>🗺️</span> Python Course Learning Tree</h3><div class="space-y-5">`;
+      COURSE_CURRICULUM.forEach(concept => {
+        html += `
+          <div class="relative border-l border-indigo-100 pl-6 ml-3">
+            <span class="absolute -left-1 top-1 w-2.5 h-2.5 rounded-full border border-indigo-500 bg-white shadow-sm"></span>
+            <div class="space-y-2">
+              <div>
+                <h4 class="text-xs font-bold text-slate-800 font-mono uppercase tracking-tight">${escapeHtml(concept.conceptTitle)}</h4>
+                <p class="text-[10px] text-slate-400 leading-normal mt-0.5">${escapeHtml(concept.summary)}</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                ${concept.lessons.map(lesson => `
+                  <button onclick="selectLesson('${escapeHtml(lesson.id)}')" class="p-2.5 rounded-xl border border-slate-200 bg-white/70 hover:border-indigo-300 hover:bg-indigo-50/15 text-left transition-all shadow-sm">
+                    <span class="text-[7px] font-mono text-indigo-500 font-bold uppercase block">${escapeHtml(lesson.level)} · ${lesson.minutes} min</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate">${escapeHtml(lesson.title)}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+          </div>`;
+      });
+      html += "</div>";
+      container.innerHTML = html;
+    }
 
-      addConsole("warn", `No match for: ${query}`);
+    // AI Lesson Generator
+    window.showAiLessonGenerator = function() {
+      document.getElementById("lessons-detail-container").innerHTML = `
+        <div class="space-y-6 max-w-2xl mx-auto mt-10">
+          <header class="space-y-2 text-center">
+            <span class="text-4xl block mb-2">✨</span>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">AI Curriculum Generator</h1>
+            <p class="text-sm text-slate-500 leading-relaxed max-w-md mx-auto">Generate a custom lesson module tailored to any concept using our advanced Gemini curriculum engine.</p>
+          </header>
+          
+          <div class="p-6 rounded-2xl glass-card space-y-4">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-800 uppercase tracking-wider font-mono">Concept / Topic</label>
+              <input type="text" id="ai-lesson-topic-input" placeholder="e.g. List Comprehensions, Decorators..." class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <button id="ai-lesson-generate-btn" class="w-full py-3 px-4 rounded-xl btn-tactile-primary text-sm font-semibold" onclick="generateCustomLessonUI()">
+              Generate Lesson Module
+            </button>
+            <div id="ai-lesson-progress" class="hidden h-1.5 rounded-full bg-slate-100 overflow-hidden mt-2">
+              <div class="h-full bg-indigo-500 w-1/3 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      ui.activePathBreadcrumb.textContent = `Lesson Generator`;
+    }
+
+    window.generateCustomLessonUI = function() {
+      const topic = document.getElementById("ai-lesson-topic-input").value.trim();
+      if (!topic) return;
+      document.getElementById("ai-lesson-generate-btn").disabled = true;
+      document.getElementById("ai-lesson-generate-btn").textContent = "Synthesizing Curriculum...";
+      document.getElementById("ai-lesson-progress").classList.remove("hidden");
+      callBackend("generateCustomLesson", topic);
+    }
+
+    function selectLesson(id) {
+      let lesson = null;
+      COURSE_CURRICULUM.forEach(c => {
+        const found = c.lessons.find(l => l.id === id);
+        if (found) lesson = found;
+      });
+      if (!lesson) return;
+      state.currentLessonId = lesson.id;
+      switchMainTab("lessons");
+      
+      const objectivesHtml = lesson.objectives.map(obj => `<li class="flex items-start gap-2 text-xs text-slate-600 leading-relaxed"><svg class="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg><span>${escapeHtml(obj)}</span></li>`).join("");
+      const blocksHtml = lesson.blocks.map(block => `<div class="space-y-1"><h4 class="text-xs font-bold text-indigo-900 tracking-wide uppercase font-mono">${escapeHtml(block.heading)}</h4><p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(block.body)}</p></div>`).join("");
+
+      document.getElementById("lessons-detail-container").innerHTML = `
+        <div class="space-y-6 max-w-2xl mx-auto">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-indigo-600 font-bold select-none">${escapeHtml(lesson.level)} · ${lesson.minutes} minutes topic</div>
+          <header class="space-y-1">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">${escapeHtml(lesson.title)}</h1>
+            <p class="text-sm text-slate-500 leading-relaxed">${escapeHtml(lesson.summary)}</p>
+          </header>
+          <div class="border-b border-slate-100 my-4"></div>
+          <article class="space-y-6">${blocksHtml}</article>
+          <div class="rounded-xl border border-slate-200/80 bg-slate-950 shadow-sm overflow-hidden my-6">
+            <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between select-none">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-400"><span class="w-2 h-2 rounded-full bg-indigo-500"></span><span>minimized_lesson_snippet.py</span></div>
+              <span class="text-[9px] font-mono text-indigo-400 font-bold uppercase tracking-wider">Inline preview</span>
+            </div>
+            <pre class="p-4 font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto select-text"><code>${escapeHtml(lesson.starter)}</code></pre>
+          </div>
+          <div class="p-5 rounded-2xl border border-slate-200/60 bg-slate-50/50 space-y-3">
+            <h3 class="text-[10px] font-mono font-bold text-slate-500 tracking-wider uppercase select-none">Course Objectives</h3>
+            <ul class="space-y-2.5">${objectivesHtml}</ul>
+          </div>
+          <div class="p-6 rounded-2xl glass-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-indigo-200 bg-gradient-to-r from-indigo-50/20 to-white">
+            <div class="space-y-0.5"><h4 class="text-xs font-bold text-indigo-900 font-sans">Ready to test your comprehension?</h4><p class="text-[11px] text-slate-500 leading-normal">Load this buggy starter program into your separate workspace and correct its logic errors.</p></div>
+            <button onclick="launchPlaygroundWithCode('${encodeURIComponent(lesson.starter)}', '${escapeHtml(lesson.title)}')" class="py-2 px-4 rounded-xl btn-tactile-primary text-xs font-semibold shrink-0">🚀 Practice in Playground</button>
+          </div>
+        </div>`;
+      ui.activePathBreadcrumb.textContent = `Lesson: ${lesson.title}`;
+    }
+
+    window.launchPlaygroundWithCode = function(encodedStarter, lessonTitle) {
+      const code = decodeURIComponent(encodedStarter);
+      setCodeValue(code);
+      document.getElementById("playground-instructions-title").textContent = lessonTitle;
+      document.getElementById("playground-instructions-body").innerHTML = `
+        <p class="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">ACTIVE PRACTICE CHALLENGE</p>
+        <p class="text-xs text-slate-600 leading-relaxed font-medium">Correct the logic or syntax errors described in the <strong>Curriculum</strong> tab reading materials.</p>
+        <div class="p-3.5 rounded-xl border border-slate-100 bg-slate-50/60 text-[11px] leading-relaxed text-slate-600">💡 <strong>Tips:</strong> If you get stuck, run <strong>AST CHECK</strong> or use the suggestion buttons in the <strong>AI Tutor Chat</strong> tab.</div>`;
+      switchMainTab("playground");
+      appendTerminalOutput("System", `Loaded code challenge variables into sandbox editor playground.`);
+    };
+
+    function switchMainTab(route) {
+      state.currentPage = route;
+      document.getElementById("page-view-home").classList.toggle("hidden", route !== "home");
+      document.getElementById("page-view-lessons").classList.toggle("hidden", route !== "lessons");
+      document.getElementById("page-view-playground").classList.toggle("hidden", route !== "playground");
+      document.getElementById("page-view-tutor").classList.toggle("hidden", route !== "tutor");
+      document.getElementById("page-view-explore").classList.toggle("hidden", route !== "explore");
+      document.getElementById("page-view-settings").classList.toggle("hidden", route !== "settings");
+
+      let pathText = "Overview";
+      if (route === "home") pathText = "Profile & Stats Overview";
+      if (route === "lessons") {
+        let activeL = null;
+        COURSE_CURRICULUM.forEach(c => { const f = c.lessons.find(l => l.id === state.currentLessonId); if (f) activeL = f; });
+        pathText = activeL ? `Lesson: ${activeL.title}` : "Structured Curriculum";
+      }
+      if (route === "playground") pathText = "Playground Editor";
+      if (route === "tutor") pathText = "AI Chat Tutor";
+      if (route === "explore") pathText = "Community Explore";
+      if (route === "settings") pathText = "Platform Settings";
+      ui.activePathBreadcrumb.textContent = pathText;
+
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        const isActive = btn.dataset.tab === route;
+        btn.classList.toggle("active", isActive);
+        if (isActive) { btn.classList.add("bg-indigo-50/15", "text-indigo-600"); btn.classList.remove("text-slate-500", "hover:text-slate-900"); } 
+        else { btn.classList.remove("bg-indigo-50/15", "text-indigo-600"); btn.classList.add("text-slate-500", "hover:text-slate-900"); }
+      });
     }
 
     function callBackend(methodName, ...args) {
-      if (!backend || typeof backend[methodName] !== "function") {
-        addConsole("warn", `Qt backend unavailable: ${methodName}`);
-        addAssistant("system", "Qt backend unavailable. Running in preview mode.");
-        return false;
+      if (!state.backend || typeof state.backend[methodName] !== "function") {
+        appendTerminalOutput("Warn", `Backend is offline in browser preview mode: ${methodName}`);
+        return;
+      }
+      state.backend[methodName](...args);
+    }
+
+    function appendTerminalOutput(kind, message) {
+      const container = ui.terminalContent;
+      const row = document.createElement("div");
+      row.className = "py-0.5 border-b border-slate-900/10";
+      const stamp = new Date().toLocaleTimeString();
+      let colorClass = "text-emerald-400";
+      if (kind.toLowerCase() === "error") colorClass = "text-rose-400 font-bold";
+      if (kind.toLowerCase() === "warn") colorClass = "text-amber-500 font-bold";
+      if (kind.toLowerCase() === "ast check") colorClass = "text-indigo-400 font-bold";
+      row.innerHTML = `<span class="opacity-30 select-none">[${stamp}]</span> <span class="${colorClass}">${kind}:</span> <span class="select-text text-slate-300">${escapeHtml(message)}</span>`;
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function escapeHtml(text) { return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+    function parseMarkdown(md) {
+      if (!md) return "";
+      let html = escapeHtml(md);
+      html = html.replace(/```python([\s\S]*?)```/g, (match, code) => {
+        return `<div class="code-block-wrapper my-3 rounded-xl overflow-hidden border border-slate-200 bg-slate-950 font-mono text-xs text-slate-300">
+          <div class="px-3 py-2 bg-slate-900 border-b border-slate-800 flex justify-between items-center text-[10px] text-slate-400 select-none"><span>python</span><button onclick="copyCodeToSandbox(this)" class="text-indigo-400 hover:text-white transition-colors font-bold" data-code="${encodeURIComponent(code.trim())}">Insert to Editor</button></div>
+          <pre class="p-3 overflow-auto max-h-[250px] text-left select-text"><code>${code.trim()}</code></pre></div>`;
+      });
+      html = html.replace(/```([\s\S]*?)```/g, (match, code) => { return `<pre class="my-3 p-3 overflow-auto rounded-lg border border-slate-800 bg-slate-905 text-left font-mono text-xs text-slate-300 select-text">${code.trim()}</pre>`; });
+      html = html.replace(/`([^`\n]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-indigo-600 font-mono text-xs">$1</code>');
+      html = html.replace(/\n\n/g, '</p><p class="mt-2 text-xs leading-relaxed select-text">');
+      return `<p class="text-xs leading-relaxed select-text">${html}</p>`;
+    }
+
+    window.copyCodeToSandbox = function(btn) {
+      const code = decodeURIComponent(btn.dataset.code);
+      setCodeValue(code);
+      appendTerminalOutput("System", "Injected Python code directly from AI Tutor into coding playground.");
+    };
+
+    function appendTutorMessage(role, text) {
+      state.chatHistory.push({ role, text });
+      const isUser = role === "user";
+      
+      const mainContainer = document.getElementById("chat-messages-container");
+      if (mainContainer) {
+        const mainBubble = document.createElement("div");
+        mainBubble.className = `chat-bubble ${isUser ? "user ml-auto shadow-sm" : "ai mr-auto"}`;
+        mainBubble.innerHTML = `<div class="mb-1 flex items-center justify-between select-none"><span class="text-[10px] font-bold ${isUser ? "text-indigo-200" : "text-indigo-600"}">${isUser ? "You" : "AI Tutor"}</span></div>${isUser ? `<p class="text-xs leading-relaxed select-text">${escapeHtml(text)}</p>` : parseMarkdown(text)}`;
+        mainContainer.appendChild(mainBubble);
+        mainContainer.scrollTop = mainContainer.scrollHeight;
+        if (window.gsap) gsap.fromTo(mainBubble, { opacity: 0, y: 8, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.15 });
       }
 
-      backend[methodName](...args);
-      return true;
+      const dashContainer = document.getElementById("dashboard-chat-messages-container");
+      if (dashContainer) {
+        const dashBubble = document.createElement("div");
+        dashBubble.className = `p-2.5 rounded-xl text-xs shadow-sm border ${isUser ? "bg-indigo-50 border-indigo-100 text-slate-800 ml-5" : "bg-slate-50 border-slate-200 text-slate-700 mr-5"}`;
+        dashBubble.innerHTML = `<div class="flex items-center gap-1 select-none mb-0.5"><span class="text-[8px] font-bold uppercase tracking-wider ${isUser ? "text-indigo-600" : "text-indigo-500"}">${isUser ? "You" : "AI Tutor"}</span></div><div class="leading-relaxed select-text text-[11px]">${isUser ? escapeHtml(text) : parseMarkdown(text)}</div>`;
+        dashContainer.appendChild(dashBubble);
+        dashContainer.scrollTop = dashContainer.scrollHeight;
+        if (window.gsap) gsap.fromTo(dashBubble, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.15 });
+      }
+    }
+
+    function quickTutorQuery(queryText) {
+      document.getElementById("chat-input").value = "";
+      appendTutorMessage("user", queryText);
+      const combined = `${queryText}\n\n[Active Playground Code]\n\`\`\`python\n${getCodeValue()}\n\`\`\``;
+      const payload = [...state.chatHistory.slice(0, -1).map(m => ({ role: m.role, text: m.text })), { role: "user", text: combined }];
+      ui.chatInput.disabled = true; ui.sendChatBtn.disabled = true; ui.dashChatInput.disabled = true; ui.dashSendChatBtn.disabled = true;
+      callBackend("askAiTutor", JSON.stringify(payload));
+    }
+
+    function sendTutorChatMessage() {
+      const val = ui.chatInput.value.trim();
+      if (!val) return;
+      ui.chatInput.value = "";
+      appendTutorMessage("user", val);
+      const combined = `${val}\n\n[Active Playground Code]\n\`\`\`python\n${getCodeValue()}\n\`\`\``;
+      const payload = [...state.chatHistory.slice(0, -1).map(m => ({ role: m.role, text: m.text })), { role: "user", text: combined }];
+      ui.chatInput.disabled = true; ui.sendChatBtn.disabled = true; ui.dashChatInput.disabled = true; ui.dashSendChatBtn.disabled = true;
+      callBackend("askAiTutor", JSON.stringify(payload));
+    }
+
+    function sendDashboardChatMessage() {
+      const val = ui.dashChatInput.value.trim();
+      if (!val) return;
+      ui.dashChatInput.value = "";
+      appendTutorMessage("user", val);
+      const combined = `${val}\n\n[Active Playground Code]\n\`\`\`python\n${getCodeValue()}\n\`\`\``;
+      const payload = [...state.chatHistory.slice(0, -1).map(m => ({ role: m.role, text: m.text })), { role: "user", text: combined }];
+      ui.chatInput.disabled = true; ui.sendChatBtn.disabled = true; ui.dashChatInput.disabled = true; ui.dashSendChatBtn.disabled = true;
+      callBackend("askAiTutor", JSON.stringify(payload));
+    }
+
+    function runCode() {
+      appendTerminalOutput("System", "Transmitting Python script to local environment safe sandbox...");
+      callBackend("runCode", getCodeValue());
+    }
+
+    function runAstCheck() {
+      appendTerminalOutput("System", "Submitting syntax parse structure to local AST validator...");
+      callBackend("syntaxCheck", getCodeValue());
+    }
+
+    function bindInteractiveUiEvents() {
+      ui.enterStudioBtn.addEventListener("click", () => {
+        if (window.gsap) gsap.to(ui.welcomeScreen, { opacity: 0, duration: 0.35, onComplete: () => { ui.welcomeScreen.style.display = "none"; ui.appShell.style.opacity = "1"; switchMainTab("home"); } });
+        else { ui.welcomeScreen.style.display = "none"; ui.appShell.style.opacity = "1"; switchMainTab("home"); }
+      });
+      document.querySelectorAll(".nav-tab").forEach(btn => { btn.addEventListener("click", () => { if (btn.dataset.tab) switchMainTab(btn.dataset.tab); }); });
+      ui.topRunBtn.addEventListener("click", runCode);
+      ui.terminalActionCheck.addEventListener("click", runAstCheck);
+      window.addEventListener("keydown", (e) => { if (e.key === "F5") { e.preventDefault(); runCode(); } });
+      ui.clearTerminalBtn.addEventListener("click", () => { ui.terminalContent.innerHTML = "<div class='opacity-40 select-none'>Sandbox Console execution logs cleared.</div>"; });
+      ui.sendChatBtn.addEventListener("click", sendTutorChatMessage);
+      ui.chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sendTutorChatMessage(); } });
+      ui.dashSendChatBtn.addEventListener("click", sendDashboardChatMessage);
+      ui.dashChatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sendDashboardChatMessage(); } });
+      document.getElementById("workspace-action-open").addEventListener("click", () => { callBackend("openPythonFile"); });
     }
 
     function handleBridgeEvent(eventName, rawPayload) {
-      const payload = parsePayload(rawPayload);
+      let payload = {};
+      try { payload = JSON.parse(rawPayload); } catch(e) {}
 
-      switch (eventName) {
+      switch(eventName) {
         case "bridge:ready":
-          addConsole("success", "Qt web bridge ready.");
-          addAssistant("system", "Bridge connected. AI and file actions are active.");
+          ui.bridgeStatus.textContent = "Connected"; ui.bridgeDot.style.backgroundColor = "#10b981";
+          appendTerminalOutput("System", "Native Python API bridge active."); break;
+          
+        case "lesson:loading":
+          appendTerminalOutput("System", "AI is synthesizing a new curriculum module...");
           break;
-
-        case "editor:setCode":
-          if (typeof payload.code === "string") {
-            setCodeValue(payload.code);
-          }
-          navigate("editor", false);
-          addConsole("success", "Editor updated from AI result.");
-          break;
-
-        case "ai:loading": {
-          const loading = Boolean(payload.loading);
-          const button = document.getElementById("ai-generate");
-          button.disabled = loading;
-          button.innerHTML = loading
-            ? "<span class='material-symbols-outlined'>hourglass_empty</span>Generating..."
-            : "<span class='material-symbols-outlined'>auto_awesome</span>Generate Broken Exercise";
-          if (loading) {
-            const topic = typeof payload.topic === "string" ? payload.topic : "(topic)";
-            addAssistant("system", `Generating practice code for: ${topic}`);
+          
+        case "lesson:success":
+          try {
+            const newConcept = JSON.parse(payload.lesson);
+            COURSE_CURRICULUM.push(newConcept);
+            renderLessonsSidebarList();
+            renderDashboardRoadmap();
+            selectLesson(newConcept.lessons[0].id);
+            appendTerminalOutput("System", `Successfully generated and loaded custom lesson: ${newConcept.conceptTitle}`);
+          } catch(e) {
+            appendTerminalOutput("Error", "Failed to parse generated lesson JSON.");
           }
           break;
-        }
-
-        case "ai:message": {
-          const message = typeof payload.message === "string" ? payload.message : "AI task finished.";
-          addAssistant("success", message);
-          addConsole("success", message);
+          
+        case "lesson:error":
+          const btn = document.getElementById("ai-lesson-generate-btn");
+          if (btn) { btn.disabled = false; btn.textContent = "Generate Lesson Module"; }
+          document.getElementById("ai-lesson-progress").classList.add("hidden");
+          appendTerminalOutput("Error", payload.message || "Failed to generate lesson.");
           break;
-        }
 
-        case "ai:error": {
-          const message = typeof payload.message === "string" ? payload.message : "AI generation failed.";
-          addAssistant("error", message);
-          addConsole("error", message);
-          break;
-        }
+        case "tutor:response":
+          ui.chatInput.disabled = false; ui.sendChatBtn.disabled = false; ui.dashChatInput.disabled = false; ui.dashSendChatBtn.disabled = false;
+          if (payload.text) appendTutorMessage("assistant", payload.text); break;
 
-        case "syntax:result": {
-          const ok = Boolean(payload.ok);
-          const message = typeof payload.message === "string" ? payload.message : "Syntax result received.";
-          syntaxChip.textContent = ok ? "Syntax: clean" : "Syntax: issues";
-          syntaxChip.classList.toggle("warn", !ok);
-          addConsole(ok ? "success" : "error", message);
-          addAssistant(ok ? "success" : "error", message);
-          break;
-        }
+        case "tutor:error":
+          ui.chatInput.disabled = false; ui.sendChatBtn.disabled = false; ui.dashChatInput.disabled = false; ui.dashSendChatBtn.disabled = false;
+          appendTerminalOutput("Error", payload.message || "Tutor response failed.");
+          appendTutorMessage("assistant", "I encountered an error analyzing that query."); break;
 
-        case "file:opened": {
-          const name = typeof payload.name === "string" ? payload.name : "main.py";
-          const code = typeof payload.code === "string" ? payload.code : "";
-          fileChip.textContent = name;
-          setCodeValue(code);
-          addConsole("success", `Opened ${name}`);
-          addAssistant("system", `Loaded file: ${name}`);
+        case "run:result":
+          if (payload.ok) appendTerminalOutput("Stdout", payload.stdout || "Process executed successfully.");
+          else { if (payload.stdout) appendTerminalOutput("Stdout", payload.stdout); appendTerminalOutput("Error", payload.stderr || "Process closed with failures."); }
           break;
-        }
 
-        case "file:saved": {
-          const name = typeof payload.name === "string" ? payload.name : "exercise.py";
-          fileChip.textContent = name;
-          setDirtyState(false);
-          addConsole("success", `Saved ${name}`);
-          addAssistant("success", `Saved file: ${name}`);
+        case "syntax:result":
+          if (payload.ok) { ui.syntaxStatus.textContent = "No Syntax Errors"; ui.syntaxStatus.className = "text-emerald-600 font-bold"; appendTerminalOutput("AST Check", payload.message); }
+          else { ui.syntaxStatus.textContent = "Syntax Error"; ui.syntaxStatus.className = "text-rose-600 font-bold"; appendTerminalOutput("AST Error", payload.message); }
           break;
-        }
 
-        case "file:error": {
-          const message = typeof payload.message === "string" ? payload.message : "File operation failed.";
-          addConsole("error", message);
-          addAssistant("error", message);
-          break;
-        }
-
-        default:
-          addConsole("warn", `Unhandled bridge event: ${eventName}`);
-          break;
+        case "file:opened": setCodeValue(payload.code || ""); switchMainTab("playground"); appendTerminalOutput("System", `Loaded open Python file: ${payload.name}`); break;
+        case "file:saved": setDirty(false); appendTerminalOutput("System", `Saved file: ${payload.name}`); break;
+        case "file:error": appendTerminalOutput("Error", `IO error: ${payload.message}`); break;
       }
     }
 
-    function initQtBridge() {
+    function initQtBridgeConnection() {
       if (!window.QWebChannel || !window.qt || !qt.webChannelTransport) {
-        setBridgeStatus(false);
-        addConsole("warn", "QWebChannel unavailable. Preview mode active.");
-        addAssistant("system", "Preview mode: AI/open/save actions require desktop runtime.");
-        return;
+        ui.bridgeStatus.textContent = "Preview Mode"; ui.bridgeDot.style.backgroundColor = "#f59e0b";
+        appendTerminalOutput("Warn", "Connected in browser preview sandbox."); return;
       }
-
       new QWebChannel(qt.webChannelTransport, (channel) => {
-        backend = channel.objects.backend;
-        if (!backend) {
-          setBridgeStatus(false);
-          addConsole("error", "Qt bridge object not found.");
-          return;
-        }
-
-        if (backend.bridgeEvent) {
-          backend.bridgeEvent.connect(handleBridgeEvent);
-        }
-
-        setBridgeStatus(true);
-        backend.ready();
+        state.backend = channel.objects.backend || null;
+        if (!state.backend) { ui.bridgeStatus.textContent = "Bridge Offline"; ui.bridgeDot.style.backgroundColor = "#ef4444"; return; }
+        if (state.backend.bridgeEvent) state.backend.bridgeEvent.connect(handleBridgeEvent);
+        ui.bridgeStatus.textContent = "Connected"; ui.bridgeDot.style.backgroundColor = "#10b981";
+        if (typeof state.backend.ready === "function") state.backend.ready();
       });
     }
 
-    function formatDate(dateValue) {
-      const date = new Date(dateValue);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
-    function buildCalendarHeatmapValues(days = 365) {
-      const values = [];
-      const today = new Date();
-
-      for (let i = days - 1; i >= 0; i -= 1) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-
-        const wave = Math.sin(i / 10) + Math.cos(i / 19);
-        const trend = Math.max(0, Math.round((wave + 2) * 1.8));
-        const boost = i % 7 === 0 ? 3 : i % 9 === 0 ? 2 : 0;
-        const drop = i % 11 === 0 ? 2 : 0;
-        const count = Math.max(0, Math.min(12, trend + boost - drop));
-
-        values.push({ date: formatDate(date), count });
-      }
-
-      return values;
-    }
-
-    function initHeatmapFallback() {
-      const grid = document.getElementById("activity-grid-fallback");
-      if (!grid) {
-        return;
-      }
-
-      grid.innerHTML = "";
-      grid.style.display = "grid";
-
-      HEATMAP_FALLBACK_LEVELS.forEach((level) => {
-        const cell = document.createElement("div");
-        cell.className = "heat";
-
-        let color = "rgba(143, 147, 120, 0.24)";
-        if (level > 0.8) {
-          color = "rgba(205, 242, 0, 0.95)";
-        } else if (level > 0.55) {
-          color = "rgba(205, 242, 0, 0.68)";
-        } else if (level > 0.35) {
-          color = "rgba(255, 226, 76, 0.58)";
-        }
-
-        cell.style.background = color;
-        cell.title = `Activity ${Math.round(level * 100)}%`;
-        grid.appendChild(cell);
-      });
-    }
-
-    function initCalendarHeatmap() {
-      const mount = document.getElementById("calendar-heatmap-app");
-      if (!mount) {
-        return;
-      }
-
-      const values = buildCalendarHeatmapValues(365);
-      const endDate = formatDate(new Date());
-
-      const hasRegisteredHeatmap = Boolean(
-        window.Vue &&
-        window.Vue.options &&
-        window.Vue.options.components &&
-        (
-          window.Vue.options.components["calendar-heatmap"] ||
-          window.Vue.options.components.CalendarHeatmap
-        )
-      );
-
-      if (!window.Vue || (!window.VueCalendarHeatmap && !hasRegisteredHeatmap)) {
-        addConsole("warn", "Calendar heatmap library unavailable, using fallback tiles.");
-        initHeatmapFallback();
-        return;
-      }
-
-      if (window.VueCalendarHeatmap) {
-        try {
-          if (window.VueCalendarHeatmap.CalendarHeatmap) {
-            window.Vue.component("calendar-heatmap", window.VueCalendarHeatmap.CalendarHeatmap);
-          } else if (window.VueCalendarHeatmap.install) {
-            window.Vue.use(window.VueCalendarHeatmap);
-          }
-        } catch (_error) {
-          // Ignore duplicate component/plugin registration errors.
-        }
-      }
-
-      mount.innerHTML = `
-        <calendar-heatmap
-          :values="values"
-          :end-date="endDate"
-          :max="maxCount"
-          :tooltip="false"
-          :color-range="colorRange"
-          :range-color="rangeColor"
-          tooltip-unit="sessions"
-          no-data-text="No activity recorded"
-        />
-      `;
-
-      try {
-        calendarHeatmapVm = new Vue({
-          el: "#calendar-heatmap-app",
-          data: {
-            values,
-            endDate,
-            maxCount: 12,
-            colorRange: HEATMAP_COLOR_RANGE.slice(1),
-            rangeColor: HEATMAP_COLOR_RANGE,
-          },
-        });
-        addConsole("success", "Calendar heatmap loaded.");
-      } catch (_error) {
-        addConsole("warn", "Calendar heatmap mount failed, using fallback tiles.");
-        mount.innerHTML = "";
-        initHeatmapFallback();
-      }
-    }
-
-    function initProgressAnimation() {
-      if (!window.gsap) {
-        const fill = document.getElementById("progress-fill");
-        fill.style.width = "40%";
-        return;
-      }
-
-      gsap.to("#progress-fill", {
-        width: "40%",
-        duration: 1.1,
-        ease: "power2.out",
-      });
-
-      gsap.from(".panel, .hero", {
-        y: 18,
-        opacity: 0,
-        duration: 0.65,
-        ease: "power3.out",
-        stagger: 0.06,
-      });
-    }
-
-    function initSplitPane() {
-      if (!window.Split || window.innerWidth < 1240) {
-        return;
-      }
-
-      Split(["#workspace-left", "#workspace-right"], {
-        sizes: [70, 30],
-        minSize: [500, 320],
-        gutterSize: 8,
-      });
-    }
-
-    function initRouting() {
-      const initial = window.location.hash.replace("#", "");
-      navigate(initial === "editor" ? "editor" : "dashboard", false);
-
-      window.addEventListener("hashchange", () => {
-        const hash = window.location.hash.replace("#", "");
-        navigate(hash === "editor" ? "editor" : "dashboard", false);
-      });
-
-      document.querySelectorAll("[data-page]").forEach((button) => {
-        button.addEventListener("click", () => {
-          navigate(button.dataset.page || "dashboard", true);
-        });
-      });
-
-      document.getElementById("nav-start-coding").addEventListener("click", () => {
-        navigate("editor", true);
-      });
-    }
-
-    function navigate(pageName, updateHash = true) {
-      const target = pageName === "editor" ? "editor" : "dashboard";
-
-      pageDashboard.classList.toggle("hidden", target !== "dashboard");
-      pageEditor.classList.toggle("hidden", target !== "editor");
-
-      document.querySelectorAll("[data-page]").forEach((button) => {
-        button.classList.toggle("active", button.dataset.page === target);
-      });
-
-      topbarTitle.textContent = PAGE_META[target].title;
-      topbarKicker.textContent = PAGE_META[target].kicker;
-
-      if (updateHash) {
-        window.location.hash = target;
-      }
-
-      if (target === "editor" && codeMirror) {
-        window.setTimeout(() => codeMirror.refresh(), 20);
-      }
-    }
-
-    function initCodeEditor() {
-      const source = document.getElementById("editor-source");
-      source.value = STARTER_CODE;
-
-      if (!window.CodeMirror) {
-        fallbackMode = true;
-        fallbackEditor.style.display = "block";
-        fallbackEditor.value = STARTER_CODE;
-        source.style.display = "none";
-        engineChip.textContent = "Editor: fallback textarea";
-        addConsole("warn", "CodeMirror unavailable. Fallback textarea enabled.");
-
-        fallbackEditor.addEventListener("input", () => {
-          updateEditorStats();
-          setDirtyState(true);
-        });
-        fallbackEditor.addEventListener("select", updateEditorStats);
-        updateEditorStats();
-        return;
-      }
-
-      codeMirror = CodeMirror.fromTextArea(source, {
-        mode: "python",
-        theme: "dracula",
-        lineNumbers: true,
-        lineWrapping: false,
-        indentUnit: 4,
-        tabSize: 4,
-        indentWithTabs: false,
-        matchBrackets: true,
-        autoCloseBrackets: true,
-        extraKeys: {
-          "Ctrl-F": openFindPrompt,
-          "Cmd-F": openFindPrompt,
-          "Ctrl-S": () => callBackend("savePythonFile", getCodeValue()),
-          "Cmd-S": () => callBackend("savePythonFile", getCodeValue()),
-          "Ctrl-/": "toggleComment",
-          "Cmd-/": "toggleComment",
-        },
-      });
-
-      codeMirror.on("change", () => {
-        updateEditorStats();
-        setDirtyState(true);
-      });
-      codeMirror.on("cursorActivity", updateEditorStats);
-
-      engineChip.textContent = "Editor: CodeMirror ready";
-      updateEditorStats();
-      setDirtyState(false);
-      addConsole("success", "CodeMirror booted with Python mode.");
-      addAssistant("system", "CodeMirror ready. You can now generate AI exercises.");
-    }
-
-    function bindEditorControls() {
-      document.getElementById("open-btn").addEventListener("click", () => {
-        callBackend("openPythonFile");
-      });
-
-      document.getElementById("save-btn").addEventListener("click", () => {
-        callBackend("savePythonFile", getCodeValue());
-      });
-
-      document.getElementById("syntax-btn").addEventListener("click", () => {
-        callBackend("syntaxCheck", getCodeValue());
-      });
-
-      document.getElementById("copy-btn").addEventListener("click", async () => {
-        const text = getCodeValue();
-        try {
-          await navigator.clipboard.writeText(text);
-          addConsole("success", "Code copied to clipboard.");
-        } catch (_error) {
-          addConsole("error", "Clipboard copy failed.");
-        }
-      });
-
-      document.getElementById("clear-btn").addEventListener("click", () => {
-        setCodeValue("");
-        addConsole("warn", "Editor cleared.");
-      });
-
-      document.getElementById("clear-console").addEventListener("click", () => {
-        consoleLog.innerHTML = "";
-        addConsole("success", "Console cleared.");
-      });
-
-      document.getElementById("wrap-btn").addEventListener("click", () => {
-        wrapEnabled = !wrapEnabled;
-        const button = document.getElementById("wrap-btn");
-        button.textContent = wrapEnabled ? "Wrap: On" : "Wrap: Off";
-        if (codeMirror) {
-          codeMirror.setOption("lineWrapping", wrapEnabled);
-          codeMirror.refresh();
-        } else {
-          fallbackEditor.style.whiteSpace = wrapEnabled ? "pre-wrap" : "pre";
-        }
-      });
-
-      document.getElementById("font-up").addEventListener("click", () => {
-        currentFontSize = Math.min(22, currentFontSize + 1);
-        const cmEl = document.querySelector(".CodeMirror");
-        if (cmEl && codeMirror) {
-          cmEl.style.fontSize = `${currentFontSize}px`;
-          codeMirror.refresh();
-        } else {
-          fallbackEditor.style.fontSize = `${currentFontSize}px`;
-        }
-      });
-
-      document.getElementById("font-down").addEventListener("click", () => {
-        currentFontSize = Math.max(11, currentFontSize - 1);
-        const cmEl = document.querySelector(".CodeMirror");
-        if (cmEl && codeMirror) {
-          cmEl.style.fontSize = `${currentFontSize}px`;
-          codeMirror.refresh();
-        } else {
-          fallbackEditor.style.fontSize = `${currentFontSize}px`;
-        }
-      });
-
-      themeSelect.addEventListener("change", (event) => {
-        const theme = event.target.value;
-        if (codeMirror) {
-          codeMirror.setOption("theme", theme);
-          addConsole("success", `Theme switched to ${theme}.`);
-        }
-      });
-
-      document.querySelectorAll(".topic-chip").forEach((button) => {
-        button.addEventListener("click", () => {
-          const topic = button.dataset.topic || "";
-          const input = document.getElementById("ai-topic");
-          input.value = topic;
-          triggerAiGeneration();
-        });
-      });
-
-      document.getElementById("ai-generate").addEventListener("click", triggerAiGeneration);
-    }
-
-    function triggerAiGeneration() {
-      const input = document.getElementById("ai-topic");
-      const topic = input.value.trim();
-
-      if (!topic) {
-        addAssistant("error", "Enter a topic before generating code.");
-        return;
-      }
-
-      const sent = callBackend("generateBrokenCode", topic);
-      if (!sent) {
-        addAssistant("error", "Backend unavailable. Cannot call AI generation.");
-      }
-    }
-
-    window.setEditorCode = function setEditorCode(code) {
-      setCodeValue(code);
-      return true;
-    };
-
-    window.getEditorCode = function getEditorCode() {
-      return getCodeValue();
-    };
-
-    window.clearEditor = function clearEditor() {
-      setCodeValue("");
-      return true;
-    };
-
-    window.getEditorStats = function getEditorStats() {
-      const text = getCodeValue();
-      return {
-        lines: text ? text.split("\n").length : 0,
-        chars: text.length,
-        fallback: fallbackMode,
-      };
-    };
-
-    initCalendarHeatmap();
-    initRouting();
-    initCodeEditor();
-    bindEditorControls();
-    initSplitPane();
-    initProgressAnimation();
-    initQtBridge();
+    window.selectLesson = selectLesson;
+    boot();
   </script>
 </body>
 </html>

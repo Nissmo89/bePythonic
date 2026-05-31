@@ -1,7 +1,7 @@
 # bePythonic
 
-Desktop Python editor app using `PyQt6` + `QWebEngine` + `Ace Editor`, with an
-Gemini-backed broken-code generator.
+Desktop Python editor app using `PyQt6` + `QWebEngine` + `Ace Editor` in a
+frameless window shell, with a Gemini-backed broken-code generator.
 
 ## Install
 
@@ -85,7 +85,7 @@ set BEPYTHONIC_WINDOWS_SAFE_RENDER=0
 
 ## What You Get
 
-- `QMainWindow` app shell
+- Frameless `QMainWindow` app shell via `PyQt6-Frameless-Window`
 - `QWebEngineView` surface hosting an Ace Python editor
 - Toolbar actions: `Generate Broken Code`, `Syntax Check`, `Open .py`, `Save .py`, `Clear`
 - Background AI generation worker so the GUI stays responsive

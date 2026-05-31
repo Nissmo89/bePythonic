@@ -25,7 +25,8 @@ classifiers = [
 ]
 dependencies = [
   "PyQt6>=6.7.1",
-  "PyQt6-WebEngine>=6.7.0"
+  "PyQt6-WebEngine>=6.7.0",
+  "PyQt6-Frameless-Window>=0.8.1"
 ]
 
 [project.optional-dependencies]

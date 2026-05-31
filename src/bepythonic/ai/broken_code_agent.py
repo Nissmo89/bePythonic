@@ -38,6 +38,46 @@ CODE_RESPONSE_SCHEMA = {
     },
     "required": ["language", "code"],
 }
+
+LESSON_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "conceptId": {"type": "string"},
+        "conceptTitle": {"type": "string"},
+        "summary": {"type": "string"},
+        "lessons": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "title": {"type": "string"},
+                    "level": {"type": "string"},
+                    "minutes": {"type": "integer"},
+                    "summary": {"type": "string"},
+                    "objectives": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "blocks": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "heading": {"type": "string"},
+                                "body": {"type": "string"}
+                            },
+                            "required": ["heading", "body"]
+                        }
+                    },
+                    "starter": {"type": "string"}
+                },
+                "required": ["id", "title", "level", "minutes", "summary", "objectives", "blocks", "starter"]
+            }
+        }
+    },
+    "required": ["conceptId", "conceptTitle", "summary", "lessons"]
+}
 _ENV_LOADED = False
 
 
@@ -366,7 +406,7 @@ def get_model_candidates(api_key: str, api_version: str) -> list[str]:
     return discovered_fallbacks or configured_candidates
 
 
-def get_generate_payload(user_prompt: str, use_structured_output: bool) -> dict:
+def get_generate_payload(user_prompt: str, use_structured_output: bool, response_schema: dict | None = None) -> dict:
     payload = {
         "systemInstruction": {
             "parts": [{"text": SYSTEM_PROMPT.strip()}],
@@ -380,7 +420,7 @@ def get_generate_payload(user_prompt: str, use_structured_output: bool) -> dict:
 
     if use_structured_output:
         payload["generationConfig"]["responseMimeType"] = "application/json"
-        payload["generationConfig"]["responseSchema"] = CODE_RESPONSE_SCHEMA
+        payload["generationConfig"]["responseSchema"] = response_schema or CODE_RESPONSE_SCHEMA
 
     return payload
 
@@ -405,7 +445,7 @@ def sleep_for_rate_limit(retry_after_seconds: float | None) -> None:
     time.sleep(delay_seconds)
 
 
-def generate_content(model: str, user_prompt: str, api_key: str, api_version: str) -> dict:
+def generate_content(model: str, user_prompt: str, api_key: str, api_version: str, response_schema: dict | None = None) -> dict:
     use_structured_output = True
     rate_limit_retries = 0
 
@@ -413,6 +453,7 @@ def generate_content(model: str, user_prompt: str, api_key: str, api_version: st
         payload = get_generate_payload(
             user_prompt=user_prompt,
             use_structured_output=use_structured_output,
+            response_schema=response_schema
         )
 
         try:
@@ -641,6 +682,150 @@ Difficulty: beginner
 
         print(f"\nUsed model: {used_model}")
         return code
+
+    raise RuntimeError(
+        "No fallback model returned usable code. "
+        f"Last issue: {last_error}"
+    )
+
+
+LESSON_SYSTEM_PROMPT = """
+You are a curriculum designer for a Python coding practice app.
+Return ONLY valid JSON matching the provided schema.
+No markdown. No explanation. No text before or after JSON.
+Generate an engaging, practical lesson for the given topic.
+"""
+
+def generate_custom_lesson(topic: str) -> str:
+    user_prompt = f"Generate a comprehensive python learning concept and lesson JSON for the topic: {topic}"
+
+    api_key = get_api_key()
+    api_version = get_api_version()
+    last_error = None
+
+    # Temporarily override SYSTEM_PROMPT
+    global SYSTEM_PROMPT
+    old_system_prompt = SYSTEM_PROMPT
+    SYSTEM_PROMPT = LESSON_SYSTEM_PROMPT
+
+    try:
+        for model in get_model_candidates(api_key=api_key, api_version=api_version):
+            try:
+                response = generate_content(
+                    model=model,
+                    user_prompt=user_prompt,
+                    api_key=api_key,
+                    api_version=api_version,
+                    response_schema=LESSON_RESPONSE_SCHEMA
+                )
+            except GeminiStatusError as error:
+                if error.status_code in (401, 403):
+                    raise RuntimeError("Gemini rejected the API key.") from error
+                if error.status_code == 429:
+                    last_error = f"{model}: Rate limit exceeded (429)."
+                    continue
+                last_error = f"{model}: API error {error.status_code}."
+                continue
+
+            used_model = model
+            ai_reply = get_response_text(response)
+
+            if not ai_reply:
+                continue
+
+            try:
+                # Validate JSON format
+                parsed = json.loads(extract_json_text(ai_reply))
+                return json.dumps(parsed)
+            except json.JSONDecodeError as parse_error:
+                last_error = f"{used_model}: {parse_error}"
+                continue
+
+        raise RuntimeError(f"No fallback model returned a usable lesson. Last issue: {last_error}")
+    finally:
+        SYSTEM_PROMPT = old_system_prompt
+
+
+TUTOR_SYSTEM_PROMPT = """
+You are a senior-level Python tutor and reviewer in the 'bePythonic' learning app.
+Your goals:
+- Explain Python concepts, syntax errors, and logic bugs in simple, clear, friendly language.
+- Guide the user step-by-step. If they ask for a hint, provide a subtle clue that triggers critical thinking rather than giving the solution.
+- Keep explanations elegant and concise.
+- Format your response in clean markdown with Python code blocks where appropriate.
+"""
+
+
+def ask_ai_tutor(messages_json: str) -> str:
+    """Send a multi-turn chat log to Gemini and return the tutor's response in markdown."""
+    try:
+        messages = json.loads(messages_json)
+    except Exception as err:
+        raise ValueError(f"Invalid messages JSON format: {err}")
+
+    # Build Gemini-compliant content list
+    gemini_contents = []
+    for msg in messages:
+        role = "user" if msg.get("role") == "user" else "model"
+        text = msg.get("text", "")
+        gemini_contents.append({
+            "role": role,
+            "parts": [{"text": text}]
+        })
+
+    payload = {
+        "systemInstruction": {
+            "parts": [{"text": TUTOR_SYSTEM_PROMPT.strip()}],
+        },
+        "contents": gemini_contents,
+        "generationConfig": {
+            "maxOutputTokens": 1200,
+            "temperature": 0.7,
+        },
+    }
+
+    api_key = get_api_key()
+    api_version = get_api_version()
+    last_error = None
+
+    for model in get_model_candidates(api_key=api_key, api_version=api_version):
+        try:
+            response = send_json_request(
+                url=build_generate_endpoint(model=model, api_version=api_version),
+                api_key=api_key,
+                method="POST",
+                payload=payload,
+                timeout_seconds=60,
+            )
+        except GeminiStatusError as error:
+            if error.status_code in (401, 403):
+                raise RuntimeError(
+                    "Gemini rejected the API key. Check that GEMINI_API_KEY is set to "
+                    "a valid Google AI Studio key in this terminal."
+                ) from error
+
+            if error.status_code == 429:
+                last_error = f"{model}: Gemini API rate limit exceeded (429)."
+                print(f"Skipping {model}: Gemini API rate limit exceeded (429).")
+                continue
+
+            last_error = f"{model}: Gemini API error {error.status_code}: {error}"
+            print(f"Skipping {model}: Gemini API error {error.status_code}.")
+            continue
+
+        ai_reply = get_response_text(response)
+        if ai_reply:
+            print(f"\nAI Tutor used model: {model}")
+            return ai_reply
+
+        block_reason = get_prompt_block_reason(response)
+        if block_reason:
+            last_error = f"{model}: prompt blocked ({block_reason})"
+            print(f"Skipping {model}: prompt blocked ({block_reason}).")
+        else:
+            last_error = f"{model}: empty response content"
+            print(f"Skipping {model}: empty response content.")
+        continue
 
     raise RuntimeError(
         "No fallback model returned usable code. "

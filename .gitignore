@@ -19,3 +19,11 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Scratch and design folders
+Design_idea/
+assets/
+front_end/
+open-design/
+stitch_bepythonic_design_system/
+
