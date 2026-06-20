@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PyQt6.QtCore import QObject, QThread, QUrl, pyqtSignal, pyqtSlot
 from PyQt6.QtWebChannel import QWebChannel
+from PyQt6.QtWebEngineCore import QWebEngineSettings
 from PyQt6.QtWidgets import QFileDialog, QMainWindow
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from qframelesswindow.webengine import FramelessWebEngineView
@@ -15,7 +16,6 @@ from bepythonic.ai.broken_code_agent import (
     generate_broken_code,
     generate_custom_lesson,
 )
-from bepythonic.gui.demo_html import EDITOR_HTML
 
 
 def _ensure_pyqt6_frameless_binding() -> None:
@@ -210,6 +210,98 @@ class WebUiBridge(QObject):
     @pyqtSlot()
     def ready(self) -> None:
         self._emit("bridge:ready", {"ok": True})
+
+    @pyqtSlot()
+    def getCourseCatalog(self) -> None:  # noqa: N802
+        try:
+            from bepythonic.gui.course_data import load_course_catalog
+            catalog = load_course_catalog("python_beginner")
+            catalog_dict = {
+                "course_id": catalog.course_id,
+                "title": catalog.title,
+                "description": catalog.description,
+                "modules": [
+                    {
+                        "module_id": m.module_id,
+                        "title": m.title,
+                        "lessons": [
+                            {
+                                "lesson_id": les.lesson_id,
+                                "title": les.title,
+                                "module_id": les.module_id,
+                                "module_title": les.module_title,
+                            }
+                            for les in m.lessons
+                        ]
+                    }
+                    for m in catalog.modules
+                ]
+            }
+            self._emit("catalog:loaded", {"ok": True, "catalog": catalog_dict})
+        except Exception as error:
+            self._emit("catalog:loaded", {"ok": False, "message": str(error)})
+
+    @pyqtSlot(str)
+    def getLesson(self, lesson_id: str) -> None:  # noqa: N802
+        try:
+            from bepythonic.gui.course_data import load_course_catalog, load_lesson
+            catalog = load_course_catalog("python_beginner")
+            lesson = load_lesson(catalog, lesson_id)
+            lesson_dict = {
+                "lesson_id": lesson.lesson_id,
+                "title": lesson.title,
+                "module_title": lesson.module_title,
+                "estimated_minutes": lesson.estimated_minutes,
+                "topics": lesson.topics,
+                "pages": [
+                    {
+                        "page_id": p.page_id,
+                        "title": p.title,
+                        "page_type": p.page_type,
+                        "content": p.content,
+                        "prompt_text": p.prompt_text,
+                        "code": p.code,
+                        "question": p.question,
+                        "options": p.options,
+                        "answer": p.answer,
+                        "answers": p.answers,
+                        "explanation": p.explanation,
+                    }
+                    for p in lesson.pages
+                ]
+            }
+            self._emit("lesson:loaded", {"ok": True, "lesson": lesson_dict})
+        except Exception as error:
+            self._emit("lesson:loaded", {"ok": False, "message": str(error)})
+
+    @pyqtSlot()
+    def loadProgress(self) -> None:  # noqa: N802
+        try:
+            from bepythonic.gui.course_data import load_progress
+            progress = load_progress("python_beginner")
+            self._emit("progress:loaded", {
+                "ok": True,
+                "current_lesson": progress.current_lesson,
+                "current_page": progress.current_page,
+                "completed_lessons": list(progress.completed_lessons)
+            })
+        except Exception as error:
+            self._emit("progress:loaded", {"ok": False, "message": str(error)})
+
+    @pyqtSlot(str, int, str)
+    def saveProgress(self, lesson_id: str, page_index: int, completed_lessons_json: str) -> None:  # noqa: N802
+        try:
+            from bepythonic.gui.course_data import CourseProgress, save_progress
+            completed_lessons = set(json.loads(completed_lessons_json))
+            progress = CourseProgress(
+                current_lesson=lesson_id,
+                current_page=page_index,
+                completed_lessons=completed_lessons
+            )
+            save_progress("python_beginner", progress)
+            self._emit("progress:saved", {"ok": True})
+        except Exception as error:
+            self._emit("progress:saved", {"ok": False, "message": str(error)})
 
     @pyqtSlot(str)
     def generateBrokenCode(self, topic: str) -> None:  # noqa: N802
@@ -490,6 +582,15 @@ class BePythonicWindow(FramelessMainWindow):
         self.setCentralWidget(self.web_view)
         self.titleBar.raise_()
 
+        # Enable local content to access remote URLs (for CDNs) and other local files
+        settings = self.web_view.page().settings()
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
+        )
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
+        )
+
         self._bridge = WebUiBridge(self)
         self._web_channel = QWebChannel(self.web_view.page())
         self._web_channel.registerObject("backend", self._bridge)
@@ -503,7 +604,9 @@ class BePythonicWindow(FramelessMainWindow):
             print("Failed to load studio page in QWebEngineView.")
 
     def load_editor_page(self) -> None:
-        self.web_view.setHtml(EDITOR_HTML, QUrl("https://bepythonic.local/studio/"))
+        front_end_dir = Path(__file__).resolve().parent / "front_end"
+        index_html_path = front_end_dir / "index.html"
+        self.web_view.load(QUrl.fromLocalFile(str(index_html_path.resolve())))
 
     def closeEvent(self, event) -> None:  # noqa: N802  # type: ignore[override]
         self._bridge.shutdown()
