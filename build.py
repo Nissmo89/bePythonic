@@ -139,6 +139,12 @@ def build_executable(*, onefile: bool) -> Path:
         "PyQt5",
         "--exclude-module",
         "PySide2",
+        "--add-data",
+        f"{ROOT / 'src' / 'bepythonic' / 'gui' / 'front_end'}{os.pathsep}bepythonic/gui/front_end",
+        "--add-data",
+        f"{ROOT / 'courses'}{os.pathsep}courses",
+        "--add-data",
+        f"{ROOT / 'user_data'}{os.pathsep}user_data",
     ]
 
     if onefile:

@@ -96,6 +96,7 @@ set BEPYTHONIC_WINDOWS_SAFE_RENDER=0
 ```text
 src/bepythonic/main.py
 src/bepythonic/gui/main_window.py
-src/bepythonic/gui/demo_html.py
+src/bepythonic/gui/front_end/index.html
 src/bepythonic/ai/broken_code_agent.py
 ```
+
