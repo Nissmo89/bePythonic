@@ -23,7 +23,7 @@ dist/
 # Scratch and design folders
 Design_idea/
 assets/
-front_end/
+/front_end/
 open-design/
 stitch_bepythonic_design_system/
 

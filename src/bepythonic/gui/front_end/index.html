@@ -1,0 +1,575 @@
+<!doctype html>
+<html class="h-full" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bePythonic Learning Platform</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Prebuilt utility stylesheet generated from the frontend markup -->
+  <link rel="stylesheet" href="css/tailwind-utilities.css" />
+
+  <!-- Monaco Editor & CDN libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="h-full bg-slate-50 text-slate-900 antialiased overflow-hidden select-none">
+
+  <!-- Welcome Page -->
+  <section id="welcome-screen" class="welcome-screen">
+    <div class="max-w-md w-full mx-4 p-8 border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl text-center">
+      <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-indigo-50 border border-indigo-100 text-indigo-600">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 018.75 5.841c-.893.233-1.782.507-2.658.814m-15.482 0a50.58 50.58 0 003.528 7.643m11.954-7.643a50.58 50.58 0 013.528 7.643m-14.73 1.579a48.514 48.514 0 004.91 5.922m7.41-5.922a48.514 48.514 0 014.91 5.922M12 10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">bePythonic</h1>
+      <p class="text-xs font-semibold tracking-widest text-indigo-600 uppercase mb-4">Python Learning Companion</p>
+      <p class="text-slate-500 mb-8 text-xs leading-relaxed max-w-sm mx-auto">
+        Step into an interactive, beautifully structured local course sandbox with Gemini-powered debugging tutors.
+      </p>
+      
+      <button id="enter-studio-btn" class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 font-semibold text-white transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-md">
+        Start Learning Python
+      </button>
+      <div class="text-[10px] text-slate-400 font-mono mt-4">Local host offline learning platform</div>
+    </div>
+  </section>
+
+  <!-- Complete Workspace Shell with Top Bar Navigation -->
+  <div id="app-shell" class="h-full flex flex-col opacity-0 overflow-hidden" style="background-color: var(--bg-color);">
+    
+    <!-- Unified Top Navigation Bar (Sleek Glassmorphism Style) -->
+    <nav class="h-14 glass-nav flex items-center justify-between px-6 shrink-0 select-none z-40">
+      
+      <!-- Left side: Platform identity and bridge status -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎓</span>
+          <span class="text-base font-bold bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">bePythonic</span>
+        </div>
+        <div class="h-4 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-1.5 bg-white/60 border border-slate-100 rounded-lg px-2.5 py-1">
+          <span class="w-1.5 h-1.5 rounded-full" id="bridge-dot" style="background-color: #ef4444;"></span>
+          <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider" id="bridge-status">Connecting...</span>
+        </div>
+      </div>
+
+      <!-- Center: Navigation Tabs (Expanded UX) -->
+      <div class="flex items-center gap-1.5 select-none bg-slate-100/50 p-1 border border-slate-200/50" style="border-radius: 0px;">
+        <button class="nav-tab active flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold" data-tab="home">
+          <span>👤</span>
+          <span>Profile & Stats</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="lessons">
+          <span>📚</span>
+          <span>Lesson</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="playground">
+          <span>💻</span>
+          <span>Playground</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="tutor">
+          <span>💬</span>
+          <span>AI Tutor Chat</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="explore">
+          <span>🌐</span>
+          <span>Explore</span>
+        </button>
+        <button class="nav-tab flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900" data-tab="settings">
+          <span>⚙️</span>
+          <span>Settings</span>
+        </button>
+      </div>
+
+      <!-- Right side: Streak -->
+      <div class="flex items-center gap-4">
+        <div class="bg-amber-50 border border-amber-100 text-amber-700 font-bold text-[10px] px-3 py-1 flex items-center gap-1 select-none" style="border-radius: 0px;">
+          <span>🔥</span>
+          <span><span id="topbar-streak-counter">3</span> Day Streak</span>
+        </div>
+        <div class="text-[10px] font-mono text-slate-400" id="active-path-breadcrumb">Profile & Stats Overview</div>
+      </div>
+    </nav>
+
+    <!-- Workspace Subpages Views -->
+    <div class="flex-1 min-h-0 relative z-30">
+
+      <!-- View A: Profile & Stats Page -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6" id="page-view-home">
+        <div class="max-w-6xl mx-auto space-y-6">
+          
+          <header class="p-6 glass-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider">Student Portfolio Ledger</div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Coder Profile & Statistics</h2>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-lg">
+                Track your active learning milestones, coding frequencies, resolved compiler errors, and unlocked achievements in one centralized workspace.
+              </p>
+            </div>
+            <button class="py-2 px-4 btn-tactile-primary text-xs font-semibold shrink-0" onclick="switchMainTab('lessons')">
+              Open Python Syllabus
+            </button>
+          </header>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">LESSONS COMPLETED</div>
+              <div class="text-lg font-bold text-slate-800"><span id="stats-lessons">2</span> / 7</div>
+            </div>
+            <div class="p-4 border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">ACTIVE STREAK</div>
+              <div class="text-lg font-bold text-slate-800">3 Days 🔥</div>
+            </div>
+            <div class="p-4 border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">DRILLS RESOLVED</div>
+              <div class="text-lg font-bold text-slate-800">12 Bugfixes</div>
+            </div>
+            <div class="p-4 border border-slate-200/60 bg-white/60 backdrop-blur flex flex-col gap-1 shadow-sm">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">AI TUTOR CHATS</div>
+              <div class="text-lg font-bold text-slate-800">24 Queries</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 space-y-6">
+              
+              <!-- Weekly Analytics Graph (Interactive Chart.js line graph) -->
+              <div class="p-6 glass-card space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="space-y-0.5">
+                    <span class="text-[9px] font-mono font-bold text-indigo-600 uppercase tracking-wider">Learning Performance</span>
+                    <h3 class="text-sm font-bold text-slate-800">Weekly Coding Activity Analytics</h3>
+                  </div>
+                  <div class="flex items-center gap-2 select-none">
+                    <span class="px-2 py-0.5 border border-indigo-100 text-indigo-600 text-[10px] font-bold" style="background-color: #f1f5f9;">Accuracy: 89%</span>
+                    <span class="px-2 py-0.5 border border-emerald-100 text-emerald-600 text-[10px] font-bold" style="background-color: #f1f5f9;">+2.4 hrs today</span>
+                  </div>
+                </div>
+                
+                <div class="relative w-full border border-slate-100 bg-slate-50/40 p-3 h-48">
+                  <canvas id="activity-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Structured Visual Learning Tree Roadmap -->
+              <div class="p-6 glass-card space-y-4" id="dashboard-roadmap-container">
+                <!-- Dynamically populated timeline -->
+              </div>
+              
+            </div>
+
+            <div class="space-y-6">
+              
+              <!-- Unlocked Achievements Badges Ledger -->
+              <div class="p-5 border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-4">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider select-none">Unlocked Achievements</h3>
+                <div class="grid grid-cols-2 gap-3 select-none">
+                  <div class="p-3 border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">🎓</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">First Variable</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Declared memory blocks</span>
+                  </div>
+                  <div class="p-3 border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">🛡️</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">AST Guardian</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Passed strict parse syntax</span>
+                  </div>
+                  <div class="p-3 border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center">
+                    <span class="text-3xl">💬</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">Companion</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Consulted AI 5 times</span>
+                  </div>
+                  <div class="p-3 border border-slate-100 bg-slate-50/50 flex flex-col gap-1 items-center text-center opacity-40">
+                    <span class="text-3xl">🔥</span>
+                    <span class="text-xs font-bold text-slate-800 block truncate w-full">Loop Master</span>
+                    <span class="text-[8px] text-slate-400 font-medium">Break infinite evaluations</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active Platform / Sandbox Statistics Ledger -->
+              <div class="p-5 border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-4">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider select-none">Compiler & Sandbox Statistics</h3>
+                <div class="space-y-3 font-mono text-[10px] text-slate-500">
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Syntax check validator</span>
+                    <span class="text-indigo-600 font-semibold">Active</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Weekly solved rate</span>
+                    <span class="text-indigo-600 font-semibold">7 drills/wk</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Subprocess environment</span>
+                    <span class="text-emerald-500 font-semibold">Healthy</span>
+                  </div>
+                  <div class="flex justify-between border-b pb-1.5">
+                    <span>Sandbox execution limits</span>
+                    <span class="text-emerald-500 font-semibold">5s Enforced</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Real AI Tutor Chat Widget on Dashboard -->
+              <div class="p-5 border border-slate-200/60 bg-white/60 backdrop-blur shadow-sm space-y-3 flex flex-col h-80">
+                <div class="flex items-center justify-between shrink-0 select-none">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-indigo-600">💬</span>
+                    <span class="text-sm font-bold text-slate-800">Tutor Dialogue Preview</span>
+                  </div>
+                  <span class="w-1.5 h-1.5 bg-emerald-500 animate-pulse"></span>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto space-y-2.5 p-1 select-text" id="dashboard-chat-messages-container">
+                </div>
+                
+                <div class="flex gap-2 shrink-0 pt-1.5 border-t">
+                  <label class="sr-only" for="dashboard-chat-input">Tutor Message Quick</label>
+                  <input type="text" id="dashboard-chat-input" placeholder="Type quick query..." class="flex-1 p-2 border border-slate-200 text-xs bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                  <button id="dashboard-send-chat-btn" class="px-3 btn-tactile-primary text-xs font-semibold">Send</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- View B: Interactive Course Modules (Flipped Reading-First Layout) -->
+      <div class="absolute inset-0 flex min-h-0 hidden" id="page-view-lessons">
+        
+        <!-- Slide-over Syllabus Sidebar -->
+        <div id="lesson-syllabus-sidebar" class="absolute inset-y-0 left-0 w-80 bg-white border-r shadow-2xl z-50 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out" style="border-color: var(--border-color);">
+          <div class="p-4 border-b flex items-center justify-between bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">COURSE SYLLABUS</span>
+            <button onclick="toggleSyllabusSidebar(false)" class="text-slate-400 hover:text-slate-600 font-bold text-lg select-none">&times;</button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4 space-y-4" id="lesson-syllabus-list">
+            <!-- Populated by catalog -->
+          </div>
+          <!-- AI Generator CTA in sidebar -->
+          <div class="p-3 border-t bg-slate-50" style="border-color: var(--border-color);">
+            <button class="w-full py-2.5 px-4 btn-tactile-secondary text-xs font-semibold flex items-center justify-center gap-1.5 text-indigo-600" onclick="showAiLessonGenerator()">
+              <span>✨</span> AI Custom Lesson
+            </button>
+          </div>
+        </div>
+
+        <!-- Center Panel: The Reading, Instruction, Theory & Quiz Widget (Primary View) -->
+        <main class="flex-1 border-r bg-white flex flex-col min-h-0 overflow-hidden" style="border-color: var(--border-color);">
+          <!-- Panel Header -->
+          <div class="p-4 border-b bg-slate-50/50 flex flex-col gap-2.5 shrink-0" style="border-color: var(--border-color);">
+            <div class="flex items-center justify-between">
+              <button onclick="toggleSyllabusSidebar(true)" class="py-1 px-2.5 btn-tactile-secondary text-[11px] font-semibold flex items-center gap-1 select-none">
+                <span>📋</span> Syllabus
+              </button>
+              <div class="text-[10px] font-mono font-bold text-slate-400" id="lesson-progress-text">Page 0 of 0</div>
+            </div>
+            
+            <div class="space-y-1">
+              <div class="text-[9px] font-mono font-bold text-indigo-500 uppercase tracking-wider" id="lesson-module-title">Python Introduction</div>
+              <h2 class="text-sm font-bold text-slate-800 truncate" id="lesson-title-label">Select a Lesson</h2>
+            </div>
+
+            <!-- Progress step dots -->
+            <div class="flex items-center gap-1.5 pt-1 animate-fadeIn" id="lesson-step-dots">
+              <!-- Dynamically rendered step dots -->
+            </div>
+          </div>
+
+          <!-- Panel Content (Theory / Quiz) -->
+          <div class="flex-1 overflow-y-auto select-text bg-slate-50/30">
+            <div class="max-w-2xl mx-auto p-6 md:p-8 space-y-4" id="lesson-instruction-body">
+              <div class="flex flex-col items-center justify-center h-full text-center space-y-4 my-20 opacity-60">
+                <span class="text-4xl select-none">📚</span>
+                <p class="text-xs font-medium max-w-xs leading-normal">Open the syllabus from the top-left button and select a lesson to begin learning.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel Footer / Navigation Controls -->
+          <div class="p-4 border-t bg-slate-50/50 flex items-center justify-between shrink-0" style="border-color: var(--border-color);">
+            <button class="py-2 px-4 btn-tactile-secondary text-xs font-semibold" id="lesson-nav-prev" onclick="goToPrevPage()">
+              Back
+            </button>
+            
+            <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold hidden animate-pulse" id="lesson-nav-check" onclick="checkLessonAnswer()">
+              Check Answer
+            </button>
+
+            <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold" id="lesson-nav-next" onclick="goToNextPage()">
+              Continue
+            </button>
+          </div>
+        </main>
+
+        <!-- Right Panel: Collapsible Companion Coding Workspace -->
+        <aside id="lesson-right-companion-panel" class="w-[380px] flex flex-col bg-slate-50 min-h-0 shrink-0 overflow-hidden transition-all duration-300 ease-in-out border-l" style="border-color: var(--border-color);">
+          
+          <!-- Top: Code Editor -->
+          <div class="flex-1 flex flex-col min-h-0 border-b" style="border-color: var(--border-color);">
+            <div class="h-10 flex items-center justify-between border-b px-4 shrink-0 bg-white" style="border-color: var(--border-color);">
+              <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 select-none">
+                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
+                <span class="font-semibold" id="lesson-editor-filename">main.py</span>
+              </div>
+              
+              <div class="flex items-center gap-1.5 select-none">
+                <button onclick="toggleEditorMaximize()" class="py-1 px-2 btn-tactile-secondary text-[11px] font-semibold flex items-center gap-1" id="lesson-editor-maximize-btn" title="Toggle Maximize">
+                  <span id="maximize-icon">⤢</span> <span id="maximize-text" class="hidden sm:inline">Maximize</span>
+                </button>
+                <button class="py-1 px-2 btn-tactile-secondary text-[11px] font-semibold" onclick="resetLessonCode()">
+                  Reset
+                </button>
+                <button class="py-1 px-3 btn-tactile-primary text-[11px] font-semibold flex items-center gap-1" onclick="runLessonCode()">
+                  <span>⚡</span> Run
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-1 p-3 flex flex-col min-h-0 relative">
+              <div class="flex-1 min-h-0 bg-white" style="border: 1px solid var(--border-color); border-radius: 0px;">
+                <div id="lesson-editor-host" class="w-full h-full overflow-hidden"></div>
+              </div>
+              <!-- Indicator for theory steps -->
+              <div id="lesson-editor-placeholder" class="absolute inset-0 bg-slate-50/95 flex flex-col items-center justify-center p-6 text-center select-none hidden z-10">
+                <span class="text-xl mb-1">💡</span>
+                <p class="text-xs font-semibold text-slate-600">Theory Step</p>
+                <p class="text-[9px] text-slate-400 max-w-[240px] mt-0.5">Read the centered lesson card, then click Continue to proceed.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Output Terminal & AI Tutor Tabs -->
+          <div class="h-[260px] flex flex-col bg-slate-900 text-slate-100 select-none shrink-0">
+            <!-- Tabs -->
+            <div class="h-9 flex border-b border-slate-800 bg-slate-950 shrink-0">
+              <button class="flex-1 text-[10px] font-mono font-bold tracking-wider text-center border-r border-slate-800 text-indigo-400 bg-slate-900 border-b-2 border-indigo-500" id="lesson-tab-console-btn" onclick="switchLessonTab('console')">
+                CONSOLE OUTPUT
+              </button>
+              <button class="flex-1 text-[10px] font-mono font-bold tracking-wider text-center text-slate-400 hover:text-slate-200" id="lesson-tab-tutor-btn" onclick="switchLessonTab('tutor')">
+                AI TUTOR HINT
+              </button>
+            </div>
+
+            <!-- Console Pane -->
+            <div id="lesson-console-pane" class="flex-1 overflow-y-auto p-3.5 font-mono text-[10px] leading-relaxed space-y-1 select-text">
+              <div class="opacity-40 select-none">Console output will display here when you run code.</div>
+            </div>
+
+            <!-- AI Tutor Pane -->
+            <div id="lesson-tutor-pane" class="flex-1 flex flex-col bg-slate-900 hidden">
+              <!-- Scrollable message list -->
+              <div id="lesson-tutor-messages" class="flex-1 overflow-y-auto p-3.5 space-y-3 select-text">
+                <!-- Populated by messages -->
+              </div>
+              
+              <!-- Input area -->
+              <div class="p-2 border-t border-slate-800 bg-slate-950 flex gap-2 shrink-0">
+                <input type="text" id="lesson-tutor-input" placeholder="Ask a question..." class="flex-1 px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[11px] text-slate-200 focus:outline-none focus:border-indigo-500" style="border-radius: 0px;" />
+                <button onclick="sendLessonTutorMessage()" class="py-1.5 px-3 btn-tactile-primary text-[11px] font-semibold">
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+      <!-- View C: Dedicated Spacing Playground Editor (Separate Workspace) -->
+
+      <div class="absolute inset-0 flex min-h-0 hidden" id="page-view-playground">
+        
+        <div class="w-72 border-r bg-white/70 backdrop-blur-md flex flex-col shrink-0 overflow-hidden" style="border-color: var(--border-color);">
+          <div class="p-3 border-b bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">ACTIVE DRILL TASK</span>
+          </div>
+          <div class="p-4 space-y-4 flex-1 overflow-y-auto select-text">
+            <h3 class="text-sm font-bold text-slate-800" id="playground-instructions-title">Custom Sandbox Playground</h3>
+            <div id="playground-instructions-body" class="space-y-3">
+              <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                You are in the free coding sandbox. You can open external python scripts, write random functions, check syntax, and execute processes.
+              </p>
+              <div class="p-3.5 border border-slate-100 bg-slate-50/50 text-[11px] leading-relaxed text-slate-600" style="border-radius: 0px;">
+                🚀 To practice a specific curriculum topic, head to the <strong>Curriculum</strong> tab, select a module, and click <strong>🚀 Practice in Playground</strong> to inject its broken code here.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-slate-50 min-h-0">
+          <div class="h-10 flex items-center justify-between border-b px-4 shrink-0 bg-white" style="border-color: var(--border-color);">
+            <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 select-none">
+              <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
+              <span class="font-semibold">practice_playground.py</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500" id="dirty-status-dot"></span>
+            </div>
+            
+            <div class="flex items-center gap-2 select-none">
+              <button class="py-1 px-2.5 btn-tactile-secondary text-[11px] font-semibold" id="workspace-action-open" title="Open .py File">
+                Open File
+              </button>
+              <button class="py-1 px-3 btn-tactile-primary text-[11px] font-semibold" id="top-run-btn">
+                Run Challenge (F5)
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-1 p-4 flex flex-col min-h-0 relative">
+            <div class="flex-1 min-h-0">
+              <div id="editor-host"></div>
+              <textarea id="source-code" spellcheck="false"></textarea>
+            </div>
+
+            <div class="h-48 mt-3 flex flex-col border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm" style="border-radius: 0px;">
+              <div class="h-8 border-b px-3 flex items-center justify-between select-none shrink-0 bg-slate-50">
+                <span class="text-[9px] font-mono font-bold text-slate-500">SANDBOX OUTPUT CONSOLE</span>
+                
+                <div class="flex items-center gap-2">
+                  <button class="opacity-70 hover:opacity-100 p-0.5 text-indigo-600" id="terminal-action-check" title="Run AST Syntax Check">
+                    <span class="text-[10px] font-bold font-mono">AST CHECK</span>
+                  </button>
+                  <button class="opacity-70 hover:opacity-100 p-0.5 text-slate-400 hover:text-slate-600" id="clear-terminal-btn" title="Clear logs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex-1 overflow-auto p-3 font-mono text-[11px] bg-slate-950 text-slate-200" id="terminal-content">
+                <div class="opacity-40 select-none">Execution stdout / stderr appear here...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View D: Full page AI Tutor Chat Companion -->
+      <div class="absolute inset-0 flex min-h-0 hidden bg-white" id="page-view-tutor">
+        <aside class="w-64 border-r bg-white/70 backdrop-blur-md flex flex-col shrink-0 overflow-hidden" style="border-color: var(--border-color);">
+          <div class="p-3 border-b bg-slate-50/50" style="border-color: var(--border-color);">
+            <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">TUTOR PROMPTS</span>
+          </div>
+          <div class="p-3 space-y-2.5 flex-1 overflow-y-auto">
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain indentation in Python and why it is mandatory.')" style="border-radius: 0px;">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">🔑 Indentation Syntax</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Learn block indent rules</span>
+            </button>
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('What does NameError mean and how do I solve it?')" style="border-radius: 0px;">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">⚠️ Trace NameError</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Spot local scoping issues</span>
+            </button>
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain variables and integers like I am five.')" style="border-radius: 0px;">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">🧠 Simplified Variables</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Trace values containers</span>
+            </button>
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Give me a 5-question multiple choice quiz on Python basic loops!')" style="border-radius: 0px;">
+              <span class="text-[11px] font-bold text-indigo-600 font-sans">📝 Loops sequence quiz</span>
+              <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Test logic progression</span>
+            </button>
+          </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-h-0 bg-slate-50/40">
+          <div class="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col min-h-0" id="chat-messages-container"></div>
+          <div class="p-2.5 border-t flex flex-wrap gap-1.5 bg-white/70 backdrop-blur-md shrink-0" style="border-color: var(--border-color);">
+            <button class="py-1 px-2.5 btn-tactile-secondary text-[10px] font-semibold" onclick="quickTutorQuery('Give me a simple code hint based on my current coding editor session.')">💡 Hint on Code</button>
+            <button class="py-1 px-2.5 btn-tactile-secondary text-[10px] font-semibold" onclick="quickTutorQuery('Explain what is wrong with the code currently loaded in my editor.')">🔍 Analyze Bug</button>
+          </div>
+          <div class="p-3 border-t flex gap-2 bg-white shrink-0" style="border-color: var(--border-color);">
+            <label class="sr-only" for="chat-input">Tutor Message</label>
+            <input type="text" id="chat-input" placeholder="Ask your Python tutor anything... (e.g. explain lists, quiz me)" class="flex-1 p-2.5 border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" style="border-radius: 0px;" />
+            <button id="send-chat-btn" class="px-4.5 btn-tactile-primary text-xs font-semibold">Send Message</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- View E: Explore / Community (Mock) -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6 hidden bg-slate-50" id="page-view-explore">
+        <div class="max-w-6xl mx-auto space-y-6">
+          <header class="p-6 glass-card text-center space-y-2">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Community Explore</h2>
+            <p class="text-sm text-slate-500">Discover user-created lessons, custom AI challenges, and popular topics.</p>
+          </header>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Mock items -->
+            <div class="p-5 glass-card flex flex-col gap-3">
+              <span class="text-xs font-bold text-indigo-600 font-mono">TRENDING</span>
+              <h3 class="text-sm font-bold text-slate-800">Advanced List Comprehensions</h3>
+              <p class="text-xs text-slate-500 flex-1">Explore concise syntax for creating lists in a single line. Generated by AI Tutor.</p>
+              <button class="w-full py-1.5 btn-tactile-secondary text-[10px] font-semibold">Preview Concept</button>
+            </div>
+            <div class="p-5 glass-card flex flex-col gap-3">
+              <span class="text-xs font-bold text-emerald-600 font-mono">NEW</span>
+              <h3 class="text-sm font-bold text-slate-800">Understanding 'kwargs'</h3>
+              <p class="text-xs text-slate-500 flex-1">A deep dive into dictionary unpacking in function arguments.</p>
+              <button class="w-full py-1.5 btn-tactile-secondary text-[10px] font-semibold">Preview Concept</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View F: Settings (Mock) -->
+      <div class="absolute inset-0 overflow-y-auto p-6 space-y-6 hidden bg-slate-50" id="page-view-settings">
+        <div class="max-w-3xl mx-auto space-y-6">
+          <header class="p-6 glass-card">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Platform Settings</h2>
+            <p class="text-sm text-slate-500 mt-1">Configure Gemini API models, appearance, and editor preferences.</p>
+          </header>
+          
+          <div class="p-6 glass-card space-y-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider font-mono border-b pb-2">AI Configuration</h3>
+            <div class="space-y-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-slate-700">Preferred Model</label>
+                <select class="p-2 border border-slate-200 text-xs bg-slate-50" style="border-radius: 0px;">
+                  <option>gemini-3.5-flash (Default)</option>
+                  <option>gemini-2.5-pro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="h-6 light-status-bar flex items-center justify-between px-4 text-[10px] font-mono select-none shrink-0 border-t" style="color: var(--muted-color); border-color: var(--border-color); background-color: var(--bar-bg);">
+      <div class="flex items-center gap-4">
+        <span>Language: Python 3</span>
+        <span>|</span>
+        <span id="editor-cursor-pos">Ln 1, Col 1</span>
+        <span>|</span>
+        <span id="dirty-label" class="text-indigo-600 font-bold">Clean</span>
+        <span>|</span>
+        <span id="syntax-status-label" class="text-emerald-600 font-bold">No Syntax Errors</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="opacity-80">Platform Host: bepythonic.local</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Component & Page Logic Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/bridge.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/lessons.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/tutor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
