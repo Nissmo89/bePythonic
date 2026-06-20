@@ -97,8 +97,11 @@ SIMPLE_CLASSES = {
     "overflow-auto": "overflow: auto;",
     "overflow-hidden": "overflow: hidden;",
     "overflow-y-auto": "overflow-y: auto;",
+    "rounded-md": "border-radius: 0.375rem;",
     "rounded-full": "border-radius: 9999px;",
     "rounded-lg": "border-radius: 0.5rem;",
+    "rounded-xl": "border-radius: 0.75rem;",
+    "rounded-2xl": "border-radius: 1rem;",
     "select-none": (
         "-webkit-user-select: none;\n"
         "  user-select: none;"
@@ -132,12 +135,19 @@ SIMPLE_CLASSES = {
         "  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n"
         "  transition-duration: 150ms;"
     ),
+    "transition-opacity": (
+        "transition-property: opacity;\n"
+        "  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n"
+        "  transition-duration: 150ms;"
+    ),
+    "fill-current": "fill: currentColor;",
     "truncate": (
         "overflow: hidden;\n"
         "  text-overflow: ellipsis;\n"
         "  white-space: nowrap;"
     ),
     "uppercase": "text-transform: uppercase;",
+    "self-start": "align-self: flex-start;",
     "w-full": "width: 100%;",
 }
 
@@ -171,7 +181,9 @@ SPACING_SCALE = {
     "14": "3.5rem",
     "16": "4rem",
     "20": "5rem",
+    "40": "10rem",
     "48": "12rem",
+    "60": "15rem",
     "64": "16rem",
     "72": "18rem",
     "80": "20rem",
@@ -232,14 +244,19 @@ COLORS = {
         "400": "#818cf8",
         "500": "#6366f1",
         "600": "#4f46e5",
+        "700": "#4338ca",
     },
     "rose": {
         "50": "#fff1f2",
+        "100": "#ffe4e6",
         "200": "#fecdd3",
         "400": "#fb7185",
         "500": "#f43f5e",
         "600": "#e11d48",
         "800": "#9f1239",
+    },
+    "yellow": {
+        "500": "#eab308",
     },
     "slate": {
         "50": "#f8fafc",
@@ -518,6 +535,8 @@ def generate_rule_body(utility: str) -> str:
         return f"height: {resolve_spacing(value)};"
     if utility.startswith("max-h-"):
         return f"max-height: {resolve_spacing(utility[6:])};"
+    if utility.startswith("min-h-"):
+        return f"min-height: {resolve_spacing(utility[6:])};"
     if utility.startswith("min-w-"):
         return f"min-width: {resolve_spacing(utility[6:])};"
     if utility.startswith("max-w-"):
@@ -560,6 +579,15 @@ def generate_rule_body(utility: str) -> str:
 
     if utility.startswith("top-"):
         return f"top: {resolve_spacing(utility[4:])};"
+    if utility.startswith("right-"):
+        return f"right: {resolve_spacing(utility[6:])};"
+    if utility.startswith("bottom-"):
+        return f"bottom: {resolve_spacing(utility[7:])};"
+    if utility.startswith("left-"):
+        return f"left: {resolve_spacing(utility[5:])};"
+    if utility.startswith("inset-"):
+        val = resolve_spacing(utility[6:])
+        return f"top: {val};\n  right: {val};\n  bottom: {val};\n  left: {val};"
     if utility.startswith("-left-"):
         return f"left: -{resolve_spacing(utility[6:])};"
 

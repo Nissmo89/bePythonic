@@ -6,22 +6,22 @@ window.parseMarkdown = function(md) {
   // Custom python code blocks with sandbox insertion
   html = html.replace(/```python([\s\S]*?)```/g, (match, code) => {
     return `
-      <div class="code-block-wrapper my-3 overflow-hidden border border-slate-200 bg-slate-950 font-mono text-xs text-slate-300" style="border-radius: 0px;">
+      <div class="code-block-wrapper my-3 overflow-hidden border border-slate-200 bg-slate-950 font-mono text-xs text-slate-300 rounded-lg">
         <div class="px-3 py-2 bg-slate-900 border-b border-slate-800 flex justify-between items-center text-[10px] text-slate-400 select-none">
           <span>python</span>
           <button onclick="copyCodeToSandbox(this)" class="text-indigo-400 hover:text-white transition-colors font-bold" data-code="${encodeURIComponent(code.trim())}">Insert to Editor</button>
         </div>
-        <pre class="p-3 overflow-auto max-h-[250px] text-left select-text" style="border-radius: 0px;"><code>${code.trim()}</code></pre>
+        <pre class="p-3 overflow-auto max-h-[250px] text-left select-text"><code>${code.trim()}</code></pre>
       </div>`;
   });
   
   // Custom general code blocks
   html = html.replace(/```([\s\S]*?)```/g, (match, code) => {
-    return `<pre class="my-3 p-3 overflow-auto border border-slate-800 bg-slate-900 text-left font-mono text-xs text-slate-300 select-text" style="border-radius: 0px;">${code.trim()}</pre>`;
+    return `<pre class="my-3 p-3 overflow-auto border border-slate-800 bg-slate-900 text-left font-mono text-xs text-slate-300 select-text rounded-lg">${code.trim()}</pre>`;
   });
   
   // Inline code ticks
-  html = html.replace(/`([^`\n]+)`/g, '<code class="px-1.5 py-0.5 border border-slate-200 text-indigo-600 font-mono text-xs" style="background-color: #f1f5f9; border-radius: 0px;">$1</code>');
+  html = html.replace(/`([^`\n]+)`/g, '<code class="px-1.5 py-0.5 border border-slate-200 text-indigo-600 font-mono text-xs rounded" style="background-color: #f1f5f9;">$1</code>');
   
   // Double newlines to paragraph tags
   html = html.replace(/\n\n/g, '</p><p class="mt-2 text-xs leading-relaxed select-text">');
@@ -60,8 +60,7 @@ window.appendTutorMessage = function(role, text) {
   const dashContainer = document.getElementById("dashboard-chat-messages-container");
   if (dashContainer) {
     const dashBubble = document.createElement("div");
-    dashBubble.className = `p-2.5 text-xs shadow-sm border ${isUser ? "bg-indigo-50 border-indigo-100 text-slate-800 ml-5" : "bg-slate-50 border-slate-200 text-slate-700 mr-5"}`;
-    dashBubble.style.borderRadius = "0px";
+    dashBubble.className = `p-2.5 text-xs shadow-sm border rounded-lg ${isUser ? "bg-indigo-50 border-indigo-100 text-slate-800 ml-5" : "bg-slate-50 border-slate-200 text-slate-700 mr-5"}`;
     dashBubble.innerHTML = `
       <div class="flex items-center gap-1 select-none mb-0.5">
         <span class="text-[8px] font-bold uppercase tracking-wider ${isUser ? "text-indigo-600" : "text-indigo-500"}">${isUser ? "You" : "AI Tutor"}</span>

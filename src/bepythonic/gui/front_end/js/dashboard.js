@@ -44,7 +44,7 @@ window.initActivityChart = function() {
           titleFont: { family: 'Space Grotesk', size: 10, weight: 'bold' },
           bodyFont: { family: 'IBM Plex Mono', size: 9 },
           padding: 8,
-          cornerRadius: 0, // Edgy theme
+          cornerRadius: 6, // Smooth corners
           displayColors: false
         }
       },
@@ -82,7 +82,7 @@ window.renderDashboardRoadmap = function() {
       
       html += `
         <div class="relative border-l border-indigo-100 pl-6 ml-3">
-          <span class="absolute -left-1.5 top-1.5 w-3 h-3 border border-indigo-500 bg-white shadow-sm" style="border-radius: 0px;"></span>
+          <span class="absolute -left-1.5 top-1.5 w-3 h-3 border border-indigo-500 bg-white shadow-sm rounded-full"></span>
           <div class="space-y-2">
             <div>
               <h4 class="text-xs font-bold text-slate-800 font-mono uppercase tracking-tight">${window.escapeHtml(title)}</h4>
@@ -95,7 +95,7 @@ window.renderDashboardRoadmap = function() {
                 const level = lesson.level || "Beginner";
                 const isCompleted = window.state.completedLessons && window.state.completedLessons.has(lessonId);
                 return `
-                  <button onclick="selectLesson('${window.escapeHtml(lessonId)}')" class="p-2.5 border border-slate-200 bg-white/70 hover:border-indigo-300 hover:bg-indigo-50/15 text-left transition-all shadow-sm flex flex-col justify-between" style="border-radius: 0px;">
+                  <button onclick="selectLesson('${window.escapeHtml(lessonId)}')" class="p-2.5 border border-slate-200 bg-white/70 hover:border-indigo-300 hover:bg-indigo-50/15 text-left transition-all shadow-sm flex flex-col justify-between rounded-lg">
                     <div class="flex items-center justify-between w-full gap-1">
                       <span class="text-[7px] font-mono text-indigo-500 font-bold uppercase block">${window.escapeHtml(level)} · ${minutes} min</span>
                       ${isCompleted ? '<span class="text-emerald-500 text-[9px] font-bold">✓</span>' : ''}

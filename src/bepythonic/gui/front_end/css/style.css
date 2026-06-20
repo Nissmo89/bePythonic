@@ -57,24 +57,24 @@ body {
   box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
 }
 
-/* Zero-radius minimalist buttons and inputs (edgy layout) */
+/* Sleek modern rounded buttons and inputs */
 .btn-tactile-primary {
   background: var(--color-sea-blue);
   color: #ffffff;
-  border: 1px solid rgba(11, 132, 230, 0.4);
-  border-radius: 0px !important; /* Zero-radius minimalist design */
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 2px rgba(15, 23, 42, 0.05);
-  transition: all 0.15s ease-in-out;
+  border: 1px solid rgba(11, 132, 230, 0.2);
+  border-radius: 8px; /* Smooth rounded corners */
+  box-shadow: 0 4px 12px rgba(11, 132, 230, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-tactile-primary:hover {
   background: var(--color-sea-blue-hover);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(15, 23, 42, 0.08);
-  transform: translateY(-0.5px);
+  box-shadow: 0 6px 16px rgba(11, 132, 230, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 .btn-tactile-primary:active {
   background: #085f9e;
-  transform: translateY(0.5px);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(11, 132, 230, 0.15);
 }
 
 .btn-tactile-secondary {
@@ -82,34 +82,40 @@ body {
   backdrop-filter: blur(6px);
   color: #0f172a;
   border: 1px solid #e2e8f0;
-  border-radius: 0px !important; /* Zero-radius minimalist design */
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-  transition: all 0.15s ease-in-out;
+  border-radius: 8px; /* Smooth rounded corners */
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-tactile-secondary:hover {
   background: rgba(248, 250, 252, 0.98);
   border-color: #cbd5e1;
-  transform: translateY(-0.5px);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 .btn-tactile-secondary:active {
-  transform: translateY(0.5px);
+  transform: translateY(1px);
   background: #f1f5f9;
 }
 
 .nav-tab {
-  transition: all 0.15s ease-in-out;
-  border-radius: 0px !important; /* Edgy design */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  border: 1px solid transparent;
 }
 .nav-tab.active {
-  background-color: var(--color-sea-blue-light);
+  background-color: #ffffff;
   color: var(--color-sea-blue);
-  border: 1px solid rgba(11, 132, 230, 0.15);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.nav-tab:not(.active):hover {
+  background-color: rgba(241, 245, 249, 0.5);
+  color: var(--text-color);
 }
 
 /* AI Chat Bubbles */
 .chat-bubble {
   max-width: 80%;
-  border-radius: 0px; /* Zero-radius minimalist design */
   padding: 10px 14px;
   line-height: 1.5;
 }
@@ -117,13 +123,15 @@ body {
   background-color: var(--color-sea-blue);
   color: #ffffff;
   align-self: flex-end;
-  box-shadow: 0 2px 8px rgba(11, 132, 230, 0.15);
+  border-radius: 12px 12px 2px 12px;
+  box-shadow: 0 4px 12px rgba(11, 132, 230, 0.15);
 }
 .chat-bubble.ai {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px);
   color: var(--text-color);
   border: 1px solid var(--border-color);
+  border-radius: 12px 12px 12px 2px;
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
   align-self: flex-start;
 }
@@ -133,20 +141,51 @@ body {
   height: 100%;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  border-radius: 0px; /* Zero-radius */
+  border-radius: 8px; /* Rounded editor */
 }
 
-/* Edgy style custom items */
-.welcome-screen div,
-.lesson-card-btn,
-.glass-card,
-.timeline-btn,
+/* Beautiful modern UI elements */
+.welcome-screen > div {
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -6px rgba(15, 23, 42, 0.08);
+}
+
+.lesson-card-btn {
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+}
+
+.glass-card {
+  border-radius: 12px !important;
+}
+
+.timeline-btn {
+  border-radius: 8px !important;
+}
+
 input,
 select,
-textarea,
-pre,
+textarea {
+  border-radius: 8px !important;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-sea-blue);
+  box-shadow: 0 0 0 3px var(--color-sea-blue-light);
+  outline: none;
+}
+
+pre {
+  border-radius: 8px !important;
+}
+
 code {
-  border-radius: 0px !important; /* Enforce zero-radius */
+  border-radius: 4px !important;
 }
 
 .fallback-active {
@@ -197,4 +236,1026 @@ code {
 
 .code-block-wrapper pre {
   margin: 0;
+}
+
+.sl-tiy-widget-playground {
+  width: 100%;
+}
+
+.tiy-widget-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sl-widget-playground {
+  overflow: hidden;
+  background: #171a1c;
+}
+
+.sl-widget-playground__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 0;
+}
+
+.sl-widget-playground__header__expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.sl-widget-playground__header__expand-icon {
+  display: block;
+}
+
+.sl-widget-playground__right-side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sl-widget-playground__right-side svg {
+  display: block;
+}
+
+.sl-editor-tabs-names {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background-color: #fff;
+  color: #a1a3a4;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.14px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  box-shadow: inset -4px -5px 0 -4px #c8d2db;
+}
+
+.sl-editor-tabs-names.dark {
+  background-color: #171a1c;
+  box-shadow: inset -4px -5px 0 -4px #757575;
+}
+
+.sl-editor-tabs-names__name {
+  padding: 8px 0 2px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.sl-editor-tabs-names__name.active {
+  border-bottom: 2px solid #149ef2;
+  color: #149ef2;
+  pointer-events: none;
+}
+
+.sl-editor-tabs-names__name.disableClick {
+  pointer-events: none;
+}
+
+.sl-widget-playground__tab {
+  position: relative;
+}
+
+.lesson-widget-editor-stage {
+  position: relative;
+  height: 135px;
+  background: #171a1c;
+  overflow: hidden;
+}
+
+.lesson-widget-editor-host {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lesson-widget-editor-host .monaco-editor,
+.lesson-widget-editor-host .monaco-editor .margin,
+.lesson-widget-editor-host .monaco-editor-background,
+.lesson-widget-editor-host .monaco-editor .inputarea.ime-input {
+  background: #171a1c !important;
+}
+
+.lesson-widget-editor-host div {
+  font-family: "Fira Mono", monospace;
+}
+
+.lesson-widget-editor-host .monaco-aria-container {
+  display: none;
+}
+
+.lesson-widget-editor-host .monaco-editor .line-numbers {
+  color: #6b7f99 !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .line-numbers.active-line-number {
+  color: #f9f9fa !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .margin-view-overlays .current-line-margin,
+.lesson-widget-editor-host .monaco-editor .view-overlays .current-line {
+  background: #20262b !important;
+  border: 0 !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .scroll-decoration {
+  box-shadow: none !important;
+}
+
+.lesson-widget-editor-host .monaco-scrollable-element > .scrollbar > .slider {
+  background: rgba(121, 121, 121, 0.4) !important;
+  border-radius: 9px !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .monaco-scrollable-element .scrollbar.vertical {
+  border-radius: 9px;
+  margin-right: 8px;
+}
+
+.lesson-widget-editor-host .monaco-scrollable-element > .scrollbar > .slider:hover {
+  background: rgba(100, 100, 100, 0.7) !important;
+}
+
+.lesson-widget-editor-host .monaco-scrollable-element > .scrollbar > .slider::before {
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .margin {
+  width: 32px !important;
+  border-right: 1px solid #757575 !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .margin .line-numbers {
+  width: 23px !important;
+}
+
+.lesson-widget-editor-host .monaco-editor .monaco-scrollable-element.editor-scrollable {
+  left: 40px !important;
+}
+
+.lesson-widget-editor-stage--editing .sl-widget-playground__edit-btn {
+  display: none;
+}
+
+.sl-widget-playground__edit-btn {
+  position: absolute;
+  left: 29px;
+  bottom: 10px;
+  margin: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #149ef2;
+  font-family: "Fira Mono", monospace;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.sl-widget-playground__edit-btn::after {
+  content: "|";
+  position: absolute;
+  right: -2px;
+  width: 2px;
+  animation: lesson-widget-blink 1100ms cubic-bezier(1, -1, 0, 2) infinite;
+}
+
+@keyframes lesson-widget-blink {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.sl-widget-playground__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 1px solid #757575;
+}
+
+.sl-playground__reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.sl-playground__reset-btn__icon {
+  fill: currentColor;
+}
+
+.sl-playground__reset-btn__text {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sl-playground__run-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.sl-playground__run-btn__text {
+  color: #149ef2;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.tiy-widfet-output {
+  overflow: hidden;
+  max-height: 0;
+  border: 2px solid #c8d2db;
+  border-radius: 12px 12px 0 0;
+  opacity: 0;
+  background: #fff;
+  transition: max-height 180ms ease, opacity 180ms ease;
+}
+
+.tiy-widfet-output.show {
+  max-height: 260px;
+  opacity: 1;
+}
+
+.tiy-widfet-output__header {
+  padding: 8px 16px;
+  border-bottom: 2px solid #c8d2db;
+  color: #6b7f99;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+
+.lesson-sol-shell {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #757575;
+  border-radius: 12px;
+  background: #171a1c;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  font-family: "Fira Sans", sans-serif;
+}
+
+.lesson-sol-shell--inline {
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+}
+
+.lesson-sol-shell--expanded {
+  border-radius: 18px;
+  box-shadow: 0 28px 84px rgba(15, 23, 42, 0.34);
+}
+
+.lesson-sol-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 72px;
+  padding: 0 32px;
+  border-bottom: 1px solid #757575;
+  background: #171a1c;
+  color: #c8d2db;
+}
+
+.lesson-sol-header__left,
+.lesson-sol-header__right,
+.lesson-sol-title-row,
+.lesson-sol-subtitle-row,
+.lesson-sol-vote-chip,
+.lesson-sol-footer,
+.lesson-sol-footer-button,
+.lesson-sol-run-button,
+.lesson-sol-header-button,
+.lesson-sol-icon-button,
+.lesson-sol-tutor-input-row {
+  display: flex;
+  align-items: center;
+}
+
+.lesson-sol-header__left {
+  min-width: 0;
+  flex: 1;
+  gap: 16px;
+}
+
+.lesson-sol-header__right {
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.lesson-sol-icon-button {
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #c8d2db;
+  cursor: pointer;
+}
+
+.lesson-sol-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.lesson-sol-icon-button--muted {
+  color: #999;
+}
+
+.lesson-sol-icon-button:hover,
+.lesson-sol-header-button:hover,
+.lesson-sol-footer-button:hover,
+.lesson-sol-run-button:hover {
+  opacity: 0.85;
+}
+
+.lesson-sol-icon-button--expand {
+  width: 24px;
+  height: 24px;
+}
+
+.lesson-sol-title-group {
+  min-width: 0;
+}
+
+.lesson-sol-title-row {
+  gap: 8px;
+  min-width: 0;
+}
+
+.lesson-sol-title {
+  margin: 0;
+  max-width: 320px;
+  overflow: hidden;
+  color: #c8d2db;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-sol-subtitle-row {
+  gap: 8px;
+  margin-top: 4px;
+  color: #8da0b1;
+  font-size: 13px;
+}
+
+.lesson-sol-subtitle {
+  line-height: 1.3;
+}
+
+.lesson-sol-subtitle-separator {
+  opacity: 0.7;
+}
+
+.lesson-sol-vote-chip {
+  gap: 10px;
+  margin-left: 16px;
+  color: #c8d2db;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.lesson-sol-header-button {
+  justify-content: center;
+  min-width: 84px;
+  height: 35px;
+  padding: 0 18px;
+  border: 1px solid #2493df;
+  border-radius: 4px;
+  background: transparent;
+  color: #2493df;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lesson-sol-header-button--primary {
+  background: #2493df;
+  color: #fff;
+}
+
+.lesson-sol-workspace-body {
+  display: flex;
+  min-height: 540px;
+  height: clamp(540px, 58vh, 720px);
+  background: #171a1c;
+}
+
+.lesson-inline-editor-wrapper--expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(15, 23, 42, 0.56);
+  backdrop-filter: blur(8px);
+}
+
+.lesson-inline-editor-wrapper--expanded #lesson-inline-editor-card {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 56px);
+}
+
+.lesson-sol-shell--inline .lesson-sol-header {
+  flex-direction: row;
+  align-items: center;
+  min-height: 0;
+  gap: 12px;
+  padding: 10px 16px 0;
+  border-bottom: 0;
+}
+
+.lesson-sol-shell--inline .lesson-sol-header__left {
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.lesson-sol-shell--inline .lesson-sol-subtitle-row,
+.lesson-sol-shell--inline .lesson-sol-vote-chip {
+  display: none;
+}
+
+.lesson-sol-shell--inline .lesson-sol-title {
+  max-width: none;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lesson-sol-shell--inline .lesson-sol-workspace-body {
+  flex-direction: column;
+  min-height: 0;
+  height: auto;
+}
+
+.lesson-sol-shell--inline .lesson-sol-pane--editor,
+.lesson-sol-shell--inline .lesson-sol-pane--output {
+  flex: none;
+}
+
+.lesson-sol-shell--inline .lesson-sol-editor-stage {
+  min-height: 0;
+  height: 182px;
+}
+
+.lesson-sol-shell--inline .lesson-sol-resizer {
+  display: none;
+}
+
+.lesson-sol-shell--inline .lesson-sol-pane--output {
+  border-top: 1px solid #757575;
+}
+
+.lesson-sol-shell--inline .lesson-sol-output-body {
+  min-height: 0;
+  height: 148px;
+}
+
+.lesson-sol-shell--inline .lesson-sol-footer {
+  min-height: 0;
+  padding: 10px 16px 12px;
+}
+
+.lesson-sol-shell--inline .lesson-sol-footer-button,
+.lesson-sol-shell--inline .lesson-sol-run-button {
+  font-size: 14px;
+}
+
+.lesson-sol-pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.lesson-sol-pane--editor {
+  flex: 0 0 50%;
+  background: #171a1c;
+}
+
+.lesson-sol-pane--output {
+  flex: 0 0 50%;
+  background: #fff;
+}
+
+.lesson-sol-editor-tabs,
+.lesson-sol-output-header {
+  display: grid;
+  height: 32px;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.lesson-sol-editor-tabs {
+  background: #171a1c;
+  box-shadow: inset -4px -5px 0  -4px #757575;
+}
+
+.lesson-sol-editor-tab,
+.lesson-sol-output-tab {
+  padding: 8px 0 2px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14px;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.lesson-sol-editor-tab {
+  color: #149ef2;
+  border-bottom: 2px solid #149ef2;
+}
+
+.lesson-sol-output-header {
+  background: #fff;
+  box-shadow: inset -4px -5px 0 -4px #c8d2db;
+}
+
+.lesson-sol-output-tab {
+  color: #a1a3a4;
+  cursor: pointer;
+}
+
+.lesson-sol-output-tab--active {
+  color: #6b7f99;
+  border-bottom: 2px solid #6b7f99;
+}
+
+.lesson-sol-editor-stage,
+.lesson-sol-output-body {
+  position: relative;
+  height: calc(100% - 32px);
+  min-height: 0;
+}
+
+.lesson-sol-editor-stage {
+  overflow: hidden;
+  background: #171a1c;
+}
+
+.lesson-sol-editor-host {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lesson-sol-editor-host .monaco-editor,
+.lesson-sol-editor-host .monaco-editor .margin,
+.lesson-sol-editor-host .monaco-editor-background,
+.lesson-sol-editor-host .monaco-editor .inputarea.ime-input {
+  background: #171a1c !important;
+}
+
+.lesson-sol-editor-host .monaco-editor .line-numbers {
+  color: #6b7f99 !important;
+}
+
+.lesson-sol-editor-host .monaco-editor .line-numbers.active-line-number {
+  color: #f9f9fa !important;
+}
+
+.lesson-sol-editor-host .monaco-editor .margin-view-overlays .current-line-margin,
+.lesson-sol-editor-host .monaco-editor .view-overlays .current-line {
+  background: #20262b !important;
+  border: 0 !important;
+}
+
+.lesson-sol-editor-host .monaco-editor .scroll-decoration {
+  box-shadow: none !important;
+}
+
+.lesson-sol-editor-host .monaco-scrollable-element > .scrollbar > .slider {
+  background: rgba(121, 121, 121, 0.4) !important;
+  border-radius: 9px !important;
+}
+
+.lesson-sol-editor-host .monaco-scrollable-element > .scrollbar > .slider:hover {
+  background: rgba(100, 100, 100, 0.7) !important;
+}
+
+.lesson-sol-editor-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+  background: rgba(23, 26, 28, 0.92);
+  color: #c8d2db;
+  text-align: center;
+}
+
+.lesson-sol-editor-placeholder__emoji {
+  font-size: 22px;
+}
+
+.lesson-sol-editor-placeholder__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lesson-sol-editor-placeholder__text {
+  margin: 0;
+  max-width: 260px;
+  color: #8da0b1;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.lesson-sol-resizer {
+  display: flex;
+  flex: 0 0 4px;
+  align-items: center;
+  justify-content: center;
+  background: #757575;
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.lesson-sol-resizer-lines {
+  display: flex;
+  gap: 2px;
+  transform: rotate(90deg);
+  pointer-events: none;
+}
+
+.lesson-sol-resizer-lines span {
+  width: 2px;
+  height: 4px;
+  border-radius: 2px;
+  background: #18191c;
+}
+
+.lesson-sol-output-body {
+  background: #fff;
+  overflow: hidden;
+}
+
+.lesson-sol-console-pane,
+.lesson-sol-tutor-pane {
+  height: 100%;
+}
+
+.lesson-sol-console-pane {
+  overflow: auto;
+  padding: 48px 24px 8px;
+  background: #fff;
+  color: #2d3846;
+  font-family: "Fira Mono", monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.lesson-sol-console-pane--widget {
+  padding: 16px 20px;
+  font-size: 12px;
+  min-height: 120px;
+  max-height: 210px;
+}
+
+.lesson-sol-console-empty {
+  opacity: 0.55;
+}
+
+.lesson-sol-console-row {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5ebf0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lesson-sol-console-stamp {
+  margin-right: 6px;
+  opacity: 0.4;
+}
+
+.lesson-sol-console-kind {
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.lesson-sol-console-kind--stdout {
+  color: #40bf9c;
+}
+
+.lesson-sol-console-kind--error {
+  color: #f35843;
+}
+
+.lesson-sol-console-kind--warn {
+  color: #ef9c00;
+}
+
+.lesson-sol-console-kind--system,
+.lesson-sol-console-kind--ast {
+  color: #149ef2;
+}
+
+.lesson-sol-console-message {
+  color: #2d3846;
+}
+
+.lesson-sol-tutor-pane {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.lesson-sol-tutor-messages {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.lesson-sol-tutor-intro,
+.lesson-sol-tutor-bubble {
+  max-width: 88%;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lesson-sol-tutor-intro {
+  padding: 12px 14px;
+  border: 1px solid #d3e9f9;
+  background: #ecf7ff;
+  color: #2d3846;
+}
+
+.lesson-sol-tutor-bubble {
+  margin-top: 12px;
+  padding: 12px 14px;
+}
+
+.lesson-sol-tutor-bubble--user {
+  margin-left: auto;
+  background: #171a1c;
+  color: #fff;
+}
+
+.lesson-sol-tutor-bubble--assistant {
+  border: 1px solid #dce5ec;
+  background: #f9f9fa;
+  color: #2d3846;
+}
+
+.lesson-sol-tutor-bubble-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.lesson-sol-tutor-bubble--assistant .prose {
+  color: inherit;
+}
+
+.lesson-sol-tutor-input-row {
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #c8d2db;
+}
+
+.lesson-sol-tutor-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px !important;
+  border: 1px solid #c8d2db !important;
+  border-radius: 4px !important;
+  background: #fff;
+  color: #2d3846;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 13px;
+  box-shadow: none !important;
+}
+
+.lesson-sol-tutor-input:focus {
+  border-color: #2493df !important;
+  box-shadow: 0 0 0 4px #d3e9f9 !important;
+}
+
+.lesson-sol-tutor-send,
+.lesson-sol-footer-button,
+.lesson-sol-run-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: "Fira Sans", sans-serif;
+}
+
+.lesson-sol-tutor-send {
+  min-width: 72px;
+  height: 35px;
+  padding: 0 16px;
+  border-radius: 4px;
+  background: #2493df;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.lesson-sol-footer {
+  min-height: 76px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 32px;
+  border-top: 1px solid #757575;
+  background: #171a1c;
+}
+
+.lesson-sol-reopen {
+  padding: 0 0 24px;
+  text-align: center;
+}
+
+.lesson-sol-footer-button {
+  color: #c8d2db;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lesson-sol-run-button {
+  gap: 8px;
+  color: #149ef2;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lesson-sol-run-button svg {
+  width: 16px;
+  height: 18px;
+}
+
+.lesson-sol-workspace-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 10px 16px;
+  border: 1px solid #2493df;
+  border-radius: 4px;
+  background: #ecf7ff;
+  color: #2493df;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .lesson-inline-editor-wrapper--expanded {
+    padding: 18px;
+  }
+
+  .lesson-sol-header {
+    padding: 0 24px;
+  }
+
+  .lesson-sol-footer {
+    padding: 20px 24px;
+  }
+
+  .lesson-sol-title {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 900px) {
+  .lesson-sol-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px 24px;
+  }
+
+  .lesson-sol-header__left {
+    flex-wrap: wrap;
+  }
+
+  .lesson-sol-header__right {
+    justify-content: flex-end;
+  }
+
+  .lesson-sol-vote-chip {
+    margin-left: auto;
+  }
+
+  .lesson-sol-workspace-body {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+  }
+
+  .lesson-sol-pane--editor,
+  .lesson-sol-pane--output {
+    flex-basis: auto !important;
+  }
+
+  .lesson-sol-editor-stage,
+  .lesson-sol-output-body {
+    min-height: 320px;
+  }
+
+  .lesson-sol-resizer {
+    flex: 0 0 4px;
+    width: 100%;
+    cursor: ns-resize;
+  }
+
+  .lesson-sol-resizer-lines {
+    transform: none;
+  }
+
+  .lesson-inline-editor-wrapper--expanded {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .lesson-inline-editor-wrapper--expanded #lesson-inline-editor-card {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .lesson-sol-header,
+  .lesson-sol-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .lesson-sol-title {
+    max-width: 180px;
+    font-size: 16px;
+  }
+
+  .lesson-sol-subtitle-row {
+    flex-wrap: wrap;
+  }
+
+  .lesson-sol-header__right {
+    width: 100%;
+  }
+
+  .lesson-sol-header-button {
+    flex: 1;
+  }
+
+  .lesson-sol-console-pane {
+    padding: 24px 16px 12px;
+  }
+
+  .lesson-sol-tutor-messages {
+    padding: 16px;
+  }
+
+  .lesson-sol-shell--inline .lesson-sol-editor-stage {
+    height: 168px;
+  }
+
+  .lesson-sol-shell--inline .lesson-sol-output-body {
+    height: 132px;
+  }
 }
