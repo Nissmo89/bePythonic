@@ -29,19 +29,26 @@ window.appendTerminalOutput = function(kind, message) {
 
 window.appendLessonTerminalOutput = function(kind, message) {
   const container = document.getElementById("lesson-console-pane");
+  const outputShell = document.getElementById("lesson-inline-output-shell");
   if (!container) return;
+  if (outputShell) outputShell.classList.add("show");
+  const emptyState = container.querySelector(".lesson-sol-console-empty");
+  if (emptyState) emptyState.remove();
   const row = document.createElement("div");
-  row.className = "py-0.5 border-b border-slate-800/10";
+  row.className = "lesson-sol-console-row";
   const stamp = new Date().toLocaleTimeString();
-  
-  let colorClass = "text-emerald-400"; // Default: stdout or success
-  if (kind.toLowerCase() === "error") colorClass = "text-rose-400 font-bold";
-  if (kind.toLowerCase() === "warn") colorClass = "text-amber-500 font-bold";
-  
+  const normalizedKind = (kind || "").toLowerCase();
+
+  let kindClass = "lesson-sol-console-kind lesson-sol-console-kind--stdout";
+  if (normalizedKind === "error") kindClass = "lesson-sol-console-kind lesson-sol-console-kind--error";
+  if (normalizedKind === "warn") kindClass = "lesson-sol-console-kind lesson-sol-console-kind--warn";
+  if (normalizedKind === "system") kindClass = "lesson-sol-console-kind lesson-sol-console-kind--system";
+  if (normalizedKind === "ast check") kindClass = "lesson-sol-console-kind lesson-sol-console-kind--ast";
+
   row.innerHTML = `
-    <span class="opacity-30 select-none">[${stamp}]</span> 
-    <span class="${colorClass}">${kind}:</span> 
-    <span class="select-text text-slate-300">${window.escapeHtml(message)}</span>`;
+    <span class="lesson-sol-console-stamp">[${stamp}]</span>
+    <span class="${kindClass}">${window.escapeHtml(kind)}:</span>
+    <span class="lesson-sol-console-message">${window.escapeHtml(message)}</span>`;
     
   container.appendChild(row);
   container.scrollTop = container.scrollHeight;

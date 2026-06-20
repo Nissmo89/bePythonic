@@ -1,12 +1,20 @@
 // Application boots and event coordinators
 window.switchMainTab = function(route) {
   window.state.currentPage = route;
-  document.getElementById("page-view-home").classList.toggle("hidden", route !== "home");
-  document.getElementById("page-view-lessons").classList.toggle("hidden", route !== "lessons");
-  document.getElementById("page-view-playground").classList.toggle("hidden", route !== "playground");
-  document.getElementById("page-view-tutor").classList.toggle("hidden", route !== "tutor");
-  document.getElementById("page-view-explore").classList.toggle("hidden", route !== "explore");
-  document.getElementById("page-view-settings").classList.toggle("hidden", route !== "settings");
+  const pageViews = {
+    home: document.getElementById("page-view-home"),
+    lessons: document.getElementById("page-view-lessons"),
+    playground: document.getElementById("page-view-playground"),
+    tutor: document.getElementById("page-view-tutor"),
+    explore: document.getElementById("page-view-explore"),
+    settings: document.getElementById("page-view-settings")
+  };
+
+  Object.entries(pageViews).forEach(([pageRoute, pageView]) => {
+    if (pageView) {
+      pageView.classList.toggle("hidden", route !== pageRoute);
+    }
+  });
 
   let pathText = "Overview";
   if (route === "home") pathText = "Profile & Stats Overview";
@@ -26,7 +34,9 @@ window.switchMainTab = function(route) {
   if (route === "tutor") pathText = "AI Chat Tutor";
   if (route === "explore") pathText = "Community Explore";
   if (route === "settings") pathText = "Platform Settings";
-  window.ui.activePathBreadcrumb.textContent = pathText;
+  if (window.ui.activePathBreadcrumb) {
+    window.ui.activePathBreadcrumb.textContent = pathText;
+  }
 
   document.querySelectorAll(".nav-tab").forEach(btn => {
     const isActive = btn.dataset.tab === route;
@@ -112,6 +122,9 @@ window.bindInteractiveUiEvents = function() {
 };
 
 window.boot = function() {
+  if (window.state.hasBooted) return;
+  window.state.hasBooted = true;
+
   window.initUiReferences();
   window.initMonacoEditor();
   window.renderSyllabusList();
