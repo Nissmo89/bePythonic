@@ -43,7 +43,7 @@ window.renderSyllabusList = function() {
             const isCompleted = window.state.completedLessons && window.state.completedLessons.has(lesson.lesson_id);
             const isActive = window.state.activeLesson && window.state.activeLesson.lesson_id === lesson.lesson_id;
             return `
-              <button class="w-full text-left p-2 border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex items-center justify-between gap-2 lesson-card-btn ${isActive ? 'ring-2 ring-indigo-500 font-semibold' : ''}" data-id="${window.escapeHtml(lesson.lesson_id)}" style="border-radius: 0px;">
+              <button class="w-full text-left p-2 border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex items-center justify-between gap-2 lesson-card-btn ${isActive ? 'ring-2 ring-indigo-500 font-semibold' : ''}" data-id="${window.escapeHtml(lesson.lesson_id)}">
                 <div class="flex flex-col gap-0.5 truncate">
                   <span class="text-[8px] font-mono text-slate-400 uppercase">Lesson</span>
                   <span class="text-xs text-slate-800 truncate block">${window.escapeHtml(lesson.title)}</span>
@@ -153,6 +153,8 @@ window.selectLesson = function(lessonId, isResume = false) {
 window.loadLessonContent = function(lesson, isResume = false) {
   window.state.activeLesson = lesson;
   window.state.currentLessonId = lesson.lesson_id;
+  window.state.lessonWorkspaceExpanded = false;
+  window.state.lessonWorkspaceActiveTab = "console";
   
   // Set page index (either resume or start at 0)
   if (isResume && window.state.currentLessonPageIndex < lesson.pages.length) {
@@ -166,24 +168,187 @@ window.loadLessonContent = function(lesson, isResume = false) {
   
   // Initialize Monaco Editor if not done
   window.initLessonMonacoEditor();
+  window.initLessonWorkspaceShell();
   
   // Clear Console and Tutor
-  const consolePane = document.getElementById("lesson-console-pane");
-  if (consolePane) consolePane.innerHTML = `<div class="opacity-40">Console output will display here when you run code.</div>`;
+  window.resetLessonWorkspaceOutput();
   
   const messagesPane = document.getElementById("lesson-tutor-messages");
-  if (messagesPane) {
-    messagesPane.innerHTML = `
-      <div class="p-3 bg-slate-800/50 border border-slate-700/50 text-slate-300 text-xs leading-relaxed">
-        👋 Hi! I am your interactive AI Lesson Tutor. If you get stuck on this step, ask me for a hint!
-      </div>`;
-  }
+  if (messagesPane) messagesPane.innerHTML = window.getLessonTutorIntroMarkup();
   
   // Render active page step
   window.renderLessonPage();
   
   // Render Syllabus sidebar list to reflect selection
   window.renderSyllabusList();
+};
+
+window.getLessonTutorIntroMarkup = function() {
+  return `<div class="lesson-sol-tutor-intro">Ask for a hint when you get stuck on this step.</div>`;
+};
+
+window.resetLessonWorkspaceOutput = function() {
+  const consolePane = document.getElementById("lesson-console-pane");
+  const outputShell = document.getElementById("lesson-inline-output-shell");
+  if (consolePane) {
+    consolePane.innerHTML = `<div class="lesson-sol-console-empty">Console output will display here when you run code.</div>`;
+  }
+  if (outputShell) outputShell.classList.remove("show");
+};
+
+window.isLessonWorkspacePage = function(page) {
+  return Boolean(page && (page.page_type === "code_example" || (page.page_type === "theory" && page.code)));
+};
+
+window.updateLessonWorkspaceHeader = function(lesson, page, pageIndex) {
+  const editorTabEl = document.getElementById("lesson-editor-tab-label");
+
+  if (editorTabEl) {
+    editorTabEl.textContent = page && page.code_filename ? page.code_filename : "py";
+  }
+};
+
+window.setLessonEditorValue = function(nextCode) {
+  const safeCode = nextCode || "";
+  window.state.pendingLessonCode = safeCode;
+
+  if (window.state.lessonEditor) {
+    window.state.lessonEditor.setValue(safeCode);
+  } else {
+    window.initLessonMonacoEditor();
+  }
+};
+
+window.layoutLessonInlineEditor = function() {
+  if (!window.state.lessonEditor) return;
+  setTimeout(() => {
+    if (window.state.lessonEditor) {
+      window.state.lessonEditor.layout();
+    }
+  }, 0);
+};
+
+window.setLessonEditorInteractionState = function(unlocked) {
+  const isUnlocked = Boolean(unlocked);
+  const stage = document.getElementById("lesson-editor-body-container");
+  const editButton = document.getElementById("lesson-inline-edit-btn");
+
+  window.state.lessonEditorUnlocked = isUnlocked;
+
+  if (stage) {
+    stage.classList.toggle("lesson-widget-editor-stage--editing", isUnlocked);
+  }
+
+  if (editButton) {
+    editButton.classList.toggle("hidden", isUnlocked);
+  }
+
+  if (window.state.lessonEditor) {
+    window.state.lessonEditor.updateOptions({
+      readOnly: !isUnlocked,
+      domReadOnly: !isUnlocked,
+      renderLineHighlight: isUnlocked ? "all" : "line"
+    });
+  }
+};
+
+window.resetLessonEditorInteraction = function(page) {
+  if (!window.isLessonWorkspacePage(page)) {
+    window.setLessonEditorInteractionState(false);
+    return;
+  }
+
+  window.setLessonEditorInteractionState(true);
+};
+
+window.focusLessonEditor = function() {
+  if (!window.state.lessonEditor) {
+    window.initLessonMonacoEditor();
+    setTimeout(window.focusLessonEditor, 120);
+    return;
+  }
+
+  window.setLessonEditorInteractionState(true);
+
+  const model = window.state.lessonEditor.getModel();
+  if (model) {
+    const lastLine = model.getLineCount();
+    const lastColumn = model.getLineMaxColumn(lastLine);
+    window.state.lessonEditor.setPosition({ lineNumber: lastLine, column: lastColumn });
+  }
+
+  window.state.lessonEditor.focus();
+};
+
+window.openLessonInPlayground = function() {
+  const lesson = window.state.activeLesson;
+  const page = lesson ? lesson.pages[window.state.activePageIndex] : null;
+  const currentCode = window.state.lessonEditor
+    ? window.state.lessonEditor.getValue()
+    : (window.state.pendingLessonCode || "");
+
+  if (currentCode) {
+    window.setCodeValue(currentCode);
+  }
+
+  const playgroundTitle = document.getElementById("playground-instructions-title");
+  const playgroundBody = document.getElementById("playground-instructions-body");
+  if (playgroundTitle) {
+    playgroundTitle.textContent = page && page.title ? page.title : "Lesson Playground";
+  }
+  if (playgroundBody && lesson && page) {
+    playgroundBody.innerHTML = `
+      <p class="text-xs text-slate-500 leading-relaxed font-medium">${window.escapeHtml(lesson.title)}</p>
+      <div class="p-3.5 border border-slate-100 bg-slate-50/50 text-[11px] leading-relaxed text-slate-600 rounded-lg">
+        Continue editing this lesson code in the full playground view.
+      </div>
+      <div class="text-xs text-slate-600 leading-relaxed prose">
+        ${window.markdownToHtml(page.content || "")}
+      </div>`;
+  }
+
+  window.switchMainTab("playground");
+};
+
+window.setLessonWorkspaceVisibility = function(page) {
+  const editorWrapper = document.getElementById("lesson-inline-editor-wrapper");
+  if (!editorWrapper) return;
+
+  if (!window.isLessonWorkspacePage(page)) {
+    editorWrapper.classList.add("hidden");
+    window.setLessonEditorInteractionState(false);
+    return;
+  }
+
+  editorWrapper.classList.remove("hidden");
+  window.resetLessonEditorInteraction(page);
+  setTimeout(window.layoutLessonInlineEditor, 80);
+};
+
+window.initLessonWorkspaceShell = function() {
+  if (window.state.lessonWorkspaceInitialized) {
+    window.layoutLessonInlineEditor();
+    return;
+  }
+
+  const stage = document.getElementById("lesson-editor-body-container");
+  if (stage && !stage.dataset.lessonBound) {
+    stage.addEventListener("pointerdown", (event) => {
+      if (window.state.lessonEditorUnlocked) return;
+      if (event.target.closest && event.target.closest("#lesson-inline-edit-btn")) return;
+
+      const placeholder = document.getElementById("lesson-editor-placeholder");
+      if (placeholder && !placeholder.classList.contains("hidden")) return;
+
+      window.focusLessonEditor();
+    });
+    stage.dataset.lessonBound = "true";
+  }
+
+  window.addEventListener("resize", window.layoutLessonInlineEditor);
+
+  window.state.lessonWorkspaceInitialized = true;
+  window.layoutLessonInlineEditor();
 };
 
 // Initialize Lesson Monaco Editor
@@ -197,23 +362,81 @@ window.initLessonMonacoEditor = function() {
     setTimeout(window.initLessonMonacoEditor, 100);
     return;
   }
+
+  if (!window.state.lessonMonacoThemeReady) {
+    window.monaco.editor.defineTheme("bepythonic-sololearn", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [
+        { token: "", foreground: "C8D2DB", background: "171A1C" },
+        { token: "comment", foreground: "6B7F99" },
+        { token: "keyword", foreground: "149EF2" },
+        { token: "number", foreground: "FFA310" },
+        { token: "string", foreground: "40BF9C" },
+        { token: "delimiter", foreground: "C8D2DB" },
+        { token: "identifier", foreground: "F9F9FA" }
+      ],
+      colors: {
+        "editor.background": "#171A1C",
+        "editor.foreground": "#C8D2DB",
+        "editorCursor.foreground": "#F9F9FA",
+        "editor.lineHighlightBackground": "#20262B",
+        "editorLineNumber.foreground": "#6B7F99",
+        "editorLineNumber.activeForeground": "#F9F9FA",
+        "editor.selectionBackground": "#244E74",
+        "editor.inactiveSelectionBackground": "#20384C",
+        "editorIndentGuide.background1": "#2D3846",
+        "editorIndentGuide.activeBackground1": "#6B7F99",
+        "editorWhitespace.foreground": "#2D3846",
+        "editorBracketMatch.background": "#20384C",
+        "editorBracketMatch.border": "#149EF2",
+        "scrollbarSlider.background": "#79797966",
+        "scrollbarSlider.hoverBackground": "#646464B2",
+        "scrollbarSlider.activeBackground": "#A1A3A499"
+      }
+    });
+    window.state.lessonMonacoThemeReady = true;
+  }
   
   window.state.lessonEditor = window.monaco.editor.create(host, {
-    value: "",
+    value: window.state.pendingLessonCode || "",
     language: "python",
-    theme: "vs",
+    theme: "bepythonic-sololearn",
     automaticLayout: true,
     minimap: { enabled: false },
     fontFamily: "Fira Mono, monospace",
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 17,
     tabSize: 4,
     insertSpaces: true,
     autoClosingBrackets: "always",
     matchBrackets: "always",
     scrollBeyondLastLine: false,
+    glyphMargin: false,
+    folding: false,
     lineNumbers: "on",
-    padding: { top: 12, bottom: 12 }
+    lineNumbersMinChars: 2,
+    lineDecorationsWidth: 10,
+    overviewRulerLanes: 0,
+    hideCursorInOverviewRuler: true,
+    renderLineHighlight: "all",
+    roundedSelection: false,
+    readOnly: false,
+    domReadOnly: false,
+    scrollbar: {
+      verticalScrollbarSize: 9,
+      horizontalScrollbarSize: 9,
+      useShadows: false
+    },
+    padding: { top: 17, bottom: 17 }
   });
+
+  window.state.lessonEditor.onDidFocusEditorText(() => {
+    window.setLessonEditorInteractionState(true);
+  });
+
+  window.state.pendingLessonCode = null;
+  window.setLessonEditorInteractionState(true);
 };
 
 // Render active page step
@@ -233,11 +456,13 @@ window.renderLessonPage = function() {
   window.state.selectedMcqOption = null;
   window.state.filledBlankWord = null;
   window.state.isStepSolved = false;
+  window.resetLessonWorkspaceOutput();
   
   // Header text updates
   document.getElementById("lesson-module-title").textContent = lesson.module_title || "Python Studio";
   document.getElementById("lesson-title-label").textContent = lesson.title;
   document.getElementById("lesson-progress-text").textContent = `Page ${pageIndex + 1} of ${lesson.pages.length}`;
+  window.updateLessonWorkspaceHeader(lesson, page, pageIndex);
   
   // Render Step dots
   const dotsContainer = document.getElementById("lesson-step-dots");
@@ -252,7 +477,9 @@ window.renderLessonPage = function() {
   }).join("");
   
   // Populate instruction body
-  const bodyHost = document.getElementById("lesson-instruction-body");
+  const bodyHost = document.getElementById("lesson-instruction-copy");
+  const editorPlaceholder = document.getElementById("lesson-editor-placeholder");
+  if (editorPlaceholder) editorPlaceholder.classList.add("hidden");
   
   let contentHtml = `<h3 class="text-sm font-bold text-slate-800">${window.escapeHtml(page.title)}</h3>`;
   
@@ -263,10 +490,7 @@ window.renderLessonPage = function() {
       </div>`;
     // Set code editor value and show placeholder overlay
     if (page.code) {
-      window.state.lessonEditor.setValue(page.code);
-      document.getElementById("lesson-editor-placeholder").classList.add("hidden");
-    } else {
-      document.getElementById("lesson-editor-placeholder").classList.remove("hidden");
+      window.setLessonEditorValue(page.code);
     }
     window.state.isStepSolved = true; // Theory steps are always instantly completed
     
@@ -276,12 +500,12 @@ window.renderLessonPage = function() {
         ${window.markdownToHtml(page.content)}
       </div>
       <div class="p-3 bg-amber-50 border border-amber-100 text-[10px] text-amber-700 leading-relaxed">
-        👉 <strong>Interactive Code:</strong> Feel free to edit the Python program in the center panel and click <strong>⚡ Run Code</strong> to test its output.
+        👉 <strong>Interactive Code:</strong> Edit the Python program in the editor below and click <strong>Run</strong> to test its output.
       </div>`;
     
     // Load code into editor, hide overlay
-    window.state.lessonEditor.setValue(page.code || "");
-    document.getElementById("lesson-editor-placeholder").classList.add("hidden");
+    window.setLessonEditorValue(page.code || "");
+    if (editorPlaceholder) editorPlaceholder.classList.add("hidden");
     window.state.isStepSolved = true;
     
   } else if (page.page_type === "mcq") {
@@ -304,10 +528,7 @@ window.renderLessonPage = function() {
     
     // Hide code placeholder, load code if any
     if (page.code) {
-      window.state.lessonEditor.setValue(page.code);
-      document.getElementById("lesson-editor-placeholder").classList.add("hidden");
-    } else {
-      document.getElementById("lesson-editor-placeholder").classList.remove("hidden");
+      window.setLessonEditorValue(page.code);
     }
     window.state.isStepSolved = false;
     
@@ -338,15 +559,12 @@ window.renderLessonPage = function() {
       <div id="quiz-feedback-box" class="hidden p-4 border text-xs"></div>`;
     
     if (page.code) {
-      window.state.lessonEditor.setValue(page.code);
-      document.getElementById("lesson-editor-placeholder").classList.add("hidden");
-    } else {
-      document.getElementById("lesson-editor-placeholder").classList.remove("hidden");
+      window.setLessonEditorValue(page.code);
     }
     window.state.isStepSolved = false;
   }
   
-  bodyHost.innerHTML = contentHtml;
+  if (bodyHost) bodyHost.innerHTML = contentHtml;
   
   // Configure navigation buttons
   document.getElementById("lesson-nav-prev").disabled = (pageIndex === 0);
@@ -364,6 +582,8 @@ window.renderLessonPage = function() {
     nextBtn.textContent = (pageIndex === lesson.pages.length - 1) ? "Finish Lesson" : "Continue";
     nextBtn.disabled = false;
   }
+
+  window.setLessonWorkspaceVisibility(page);
 };
 
 // Select MCQ Option
@@ -494,15 +714,15 @@ window.goToNextPage = function() {
     if (window.updateDashboardStats) window.updateDashboardStats();
     
     // Show premium Completion screen in instruction panel
-    const bodyHost = document.getElementById("lesson-instruction-body");
-    bodyHost.innerHTML = `
+    const bodyHost = document.getElementById("lesson-instruction-copy");
+    if (bodyHost) bodyHost.innerHTML = `
       <div class="flex flex-col items-center justify-center h-full text-center space-y-5 my-10 select-none animate-fadeIn">
         <span class="text-5xl">🏆</span>
         <div class="space-y-1.5">
           <h2 class="text-lg font-bold text-slate-800">Lesson Complete!</h2>
           <p class="text-xs text-slate-500 max-w-xs leading-relaxed">Congratulations, you've completed <strong>${window.escapeHtml(lesson.title)}</strong> and reinforced your understanding!</p>
         </div>
-        <div class="p-3 border border-slate-150 bg-slate-50/50 text-[10px] text-slate-500 font-mono tracking-wide" style="border-radius: 0px;">
+        <div class="p-3 border border-slate-150 bg-slate-50/50 text-[10px] text-slate-500 font-mono tracking-wide rounded-lg">
           +10 XP · Streak Restored
         </div>
         <button onclick="toggleSyllabusSidebar(true)" class="py-2.5 px-6 btn-tactile-primary text-xs font-semibold">
@@ -517,6 +737,7 @@ window.goToNextPage = function() {
     document.getElementById("lesson-nav-prev").disabled = false;
     document.getElementById("lesson-nav-next").classList.add("hidden");
     document.getElementById("lesson-nav-check").classList.add("hidden");
+    window.setLessonWorkspaceVisibility(null);
   }
 };
 
@@ -534,8 +755,9 @@ window.resetLessonCode = function() {
   if (!lesson) return;
   const page = lesson.pages[window.state.activePageIndex];
   if (page && page.code) {
-    window.state.lessonEditor.setValue(page.code);
-    window.appendLessonTerminalOutput("System", "Reset code template to starter state.");
+    window.setLessonEditorValue(page.code);
+    window.resetLessonEditorInteraction(page);
+    window.resetLessonWorkspaceOutput();
   }
 };
 
@@ -548,12 +770,11 @@ window.runLessonCode = function() {
   window.state.runRequestSource = "lesson";
   
   const consolePane = document.getElementById("lesson-console-pane");
+  const outputShell = document.getElementById("lesson-inline-output-shell");
   if (consolePane) {
-    consolePane.innerHTML = `<div class="opacity-50 font-mono">Running process script...</div>`;
+    consolePane.innerHTML = `<div class="lesson-sol-console-empty">Running process script...</div>`;
   }
-  
-  // Route focus to Console Output tab
-  window.switchLessonTab("console");
+  if (outputShell) outputShell.classList.add("show");
   
   // Call backend compiler
   window.callBackend("runCode", code);
@@ -565,18 +786,15 @@ window.switchLessonTab = function(tab) {
   const tutorTabBtn = document.getElementById("lesson-tab-tutor-btn");
   const consolePane = document.getElementById("lesson-console-pane");
   const tutorPane = document.getElementById("lesson-tutor-pane");
-  
-  if (tab === "console") {
-    consoleTabBtn.className = "flex-1 text-[11px] font-mono font-bold tracking-wider text-center border-r border-slate-800 text-indigo-400 bg-slate-900 border-b-2 border-indigo-500";
-    tutorTabBtn.className = "flex-1 text-[11px] font-mono font-bold tracking-wider text-center text-slate-400 hover:text-slate-200";
-    consolePane.classList.remove("hidden");
-    tutorPane.classList.add("hidden");
-  } else if (tab === "tutor") {
-    tutorTabBtn.className = "flex-1 text-[11px] font-mono font-bold tracking-wider text-center text-indigo-400 bg-slate-900 border-b-2 border-indigo-500";
-    consoleTabBtn.className = "flex-1 text-[11px] font-mono font-bold tracking-wider text-center border-r border-slate-800 text-slate-400 hover:text-slate-200";
-    tutorPane.classList.remove("hidden");
-    consolePane.classList.add("hidden");
-  }
+  if (!consoleTabBtn || !tutorTabBtn || !consolePane || !tutorPane) return;
+
+  window.state.lessonWorkspaceActiveTab = tab === "tutor" ? "tutor" : "console";
+
+  const showConsole = window.state.lessonWorkspaceActiveTab === "console";
+  consoleTabBtn.classList.toggle("lesson-sol-output-tab--active", showConsole);
+  tutorTabBtn.classList.toggle("lesson-sol-output-tab--active", !showConsole);
+  consolePane.classList.toggle("hidden", !showConsole);
+  tutorPane.classList.toggle("hidden", showConsole);
 };
 
 // Send Lesson Tutor Message
@@ -630,11 +848,11 @@ window.appendLessonTutorMessage = function(role, text) {
   
   const bubble = document.createElement("div");
   if (role === "user") {
-    bubble.className = "p-3 bg-slate-800 text-slate-100 text-xs border-l-2 border-indigo-500 leading-relaxed";
-    bubble.innerHTML = `<strong>You:</strong><p class="mt-1">${window.escapeHtml(text)}</p>`;
+    bubble.className = "lesson-sol-tutor-bubble lesson-sol-tutor-bubble--user";
+    bubble.innerHTML = `<span class="lesson-sol-tutor-bubble-label">You</span><div>${window.escapeHtml(text)}</div>`;
   } else {
-    bubble.className = "p-3 bg-slate-950 text-indigo-200 text-xs border-l-2 border-emerald-500 leading-relaxed";
-    bubble.innerHTML = `<strong>AI Tutor:</strong><div class="mt-1 prose text-slate-300 font-sans">${window.markdownToHtml(text)}</div>`;
+    bubble.className = "lesson-sol-tutor-bubble lesson-sol-tutor-bubble--assistant";
+    bubble.innerHTML = `<span class="lesson-sol-tutor-bubble-label">AI Tutor</span><div class="prose">${window.markdownToHtml(text)}</div>`;
   }
   
   container.appendChild(bubble);
@@ -645,8 +863,8 @@ window.appendLessonTutorMessage = function(role, text) {
 window.showAiLessonGenerator = function() {
   window.toggleSyllabusSidebar(false);
   
-  const bodyHost = document.getElementById("lesson-instruction-body");
-  bodyHost.innerHTML = `
+  const bodyHost = document.getElementById("lesson-instruction-copy");
+  if (bodyHost) bodyHost.innerHTML = `
     <div class="space-y-6 mt-6">
       <header class="space-y-2 text-center select-none">
         <span class="text-4xl block mb-2">✨</span>
@@ -654,16 +872,16 @@ window.showAiLessonGenerator = function() {
         <p class="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">Generate a custom lesson module tailored to any concept using our advanced Gemini curriculum engine.</p>
       </header>
       
-      <div class="p-4 border border-slate-200 space-y-4 shadow-sm" style="border-radius: 0px;">
+      <div class="p-4 border border-slate-200 space-y-4 shadow-sm rounded-xl">
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Concept / Topic</label>
-          <input type="text" id="ai-lesson-topic-input" placeholder="e.g. List Comprehensions, Decorators..." class="w-full p-2.5 border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" style="border-radius: 0px;" />
+          <input type="text" id="ai-lesson-topic-input" placeholder="e.g. List Comprehensions, Decorators..." class="w-full p-2.5 border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
         <button id="ai-lesson-generate-btn" class="w-full py-2.5 px-4 btn-tactile-primary text-xs font-semibold" onclick="generateCustomLessonUI()">
           Generate Lesson Module
         </button>
-        <div id="ai-lesson-progress" class="hidden h-1.5 bg-slate-100 overflow-hidden mt-2" style="border-radius: 0px;">
-          <div class="h-full bg-indigo-500 w-1/3 animate-pulse" style="border-radius: 0px;"></div>
+        <div id="ai-lesson-progress" class="hidden h-1.5 bg-slate-100 overflow-hidden mt-2 rounded-full">
+          <div class="h-full bg-indigo-500 w-1/3 animate-pulse rounded-full"></div>
         </div>
       </div>
     </div>`;
@@ -681,7 +899,9 @@ window.showAiLessonGenerator = function() {
   document.getElementById("lesson-nav-check").classList.add("hidden");
   
   // Hide editor overlay
-  document.getElementById("lesson-editor-placeholder").classList.remove("hidden");
+  document.getElementById("lesson-editor-placeholder").classList.add("hidden");
+  window.state.lessonWorkspaceExpanded = false;
+  window.setLessonWorkspaceVisibility(null);
 };
 
 window.generateCustomLessonUI = function() {
@@ -693,32 +913,3 @@ window.generateCustomLessonUI = function() {
   document.getElementById("ai-lesson-progress").classList.remove("hidden");
   window.callBackend("generateCustomLesson", topic);
 };
-
-// Toggle Editor Maximize state with smooth width transition
-window.toggleEditorMaximize = function() {
-  const rightPanel = document.getElementById("lesson-right-companion-panel");
-  const btnText = document.getElementById("maximize-text");
-  const btnIcon = document.getElementById("maximize-icon");
-  if (!rightPanel) return;
-  
-  const isMaximized = rightPanel.classList.contains("w-[780px]");
-  if (isMaximized) {
-    rightPanel.classList.remove("w-[780px]");
-    rightPanel.classList.add("w-[380px]");
-    if (btnText) btnText.textContent = "Maximize";
-    if (btnIcon) btnIcon.textContent = "⤢";
-  } else {
-    rightPanel.classList.remove("w-[380px]");
-    rightPanel.classList.add("w-[780px]");
-    if (btnText) btnText.textContent = "Minimize";
-    if (btnIcon) btnIcon.textContent = "⤡";
-  }
-  
-  // Trigger Monaco Editor layout update after transition completes
-  setTimeout(() => {
-    if (window.state.lessonEditor) {
-      window.state.lessonEditor.layout();
-    }
-  }, 315);
-};
-

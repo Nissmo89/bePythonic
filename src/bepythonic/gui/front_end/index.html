@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500&family=Fira+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Prebuilt utility stylesheet generated from the frontend markup -->
   <link rel="stylesheet" href="css/tailwind-utilities.css" />
@@ -64,7 +64,7 @@
       </div>
 
       <!-- Center: Navigation Tabs (Expanded UX) -->
-      <div class="flex items-center gap-1.5 select-none bg-slate-100/50 p-1 border border-slate-200/50" style="border-radius: 0px;">
+      <div class="flex items-center gap-1.5 select-none bg-slate-100/50 p-1 border border-slate-200/50 rounded-lg">
         <button class="nav-tab active flex items-center gap-1.5 px-4.5 py-1.5 text-xs font-semibold" data-tab="home">
           <span>👤</span>
           <span>Profile & Stats</span>
@@ -93,7 +93,7 @@
 
       <!-- Right side: Streak -->
       <div class="flex items-center gap-4">
-        <div class="bg-amber-50 border border-amber-100 text-amber-700 font-bold text-[10px] px-3 py-1 flex items-center gap-1 select-none" style="border-radius: 0px;">
+        <div class="bg-amber-50 border border-amber-100 text-amber-700 font-bold text-[10px] px-3 py-1 flex items-center gap-1 select-none rounded-full">
           <span>🔥</span>
           <span><span id="topbar-streak-counter">3</span> Day Streak</span>
         </div>
@@ -246,8 +246,8 @@
         </div>
       </div>
 
-        <!-- View B: Interactive Course Modules (Flipped Reading-First Layout) -->
-      <div class="absolute inset-0 flex min-h-0 hidden" id="page-view-lessons">
+      <!-- View B: Interactive Course Lessons -->
+      <div class="absolute inset-0 flex flex-col min-h-0 bg-slate-50 hidden" id="page-view-lessons">
         
         <!-- Slide-over Syllabus Sidebar -->
         <div id="lesson-syllabus-sidebar" class="absolute inset-y-0 left-0 w-80 bg-white border-r shadow-2xl z-50 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out" style="border-color: var(--border-color);">
@@ -266,127 +266,116 @@
           </div>
         </div>
 
-        <!-- Center Panel: The Reading, Instruction, Theory & Quiz Widget (Primary View) -->
-        <main class="flex-1 border-r bg-white flex flex-col min-h-0 overflow-hidden" style="border-color: var(--border-color);">
-          <!-- Panel Header -->
-          <div class="p-4 border-b bg-slate-50/50 flex flex-col gap-2.5 shrink-0" style="border-color: var(--border-color);">
-            <div class="flex items-center justify-between">
-              <button onclick="toggleSyllabusSidebar(true)" class="py-1 px-2.5 btn-tactile-secondary text-[11px] font-semibold flex items-center gap-1 select-none">
-                <span>📋</span> Syllabus
-              </button>
-              <div class="text-[10px] font-mono font-bold text-slate-400" id="lesson-progress-text">Page 0 of 0</div>
-            </div>
-            
-            <div class="space-y-1">
-              <div class="text-[9px] font-mono font-bold text-indigo-500 uppercase tracking-wider" id="lesson-module-title">Python Introduction</div>
-              <h2 class="text-sm font-bold text-slate-800 truncate" id="lesson-title-label">Select a Lesson</h2>
-            </div>
+        <!-- Sololearn Header (Sticky top) -->
+        <nav class="h-14 border-b bg-white flex items-center justify-between px-6 shrink-0 z-40" style="border-color: var(--border-color);">
+          <!-- Left: Syllabus toggle & Close button -->
+          <div class="flex items-center gap-3">
+            <button onclick="toggleSyllabusSidebar(true)" class="py-1.5 px-3 btn-tactile-secondary text-xs font-semibold flex items-center gap-1.5 select-none">
+              <span>📋</span> Syllabus
+            </button>
+            <div class="text-[10px] font-mono font-bold text-slate-400" id="lesson-progress-text">Page 0 of 0</div>
+          </div>
 
+          <!-- Center: Progress Bar & Lesson title -->
+          <div class="flex flex-col items-center gap-0.5 max-w-md w-full mx-4">
+            <div class="text-[9px] font-mono font-bold text-indigo-500 uppercase tracking-wider" id="lesson-module-title">Python Introduction</div>
+            <h2 class="text-xs font-bold text-slate-700 truncate w-full text-center" id="lesson-title-label">Select a Lesson</h2>
             <!-- Progress step dots -->
-            <div class="flex items-center gap-1.5 pt-1 animate-fadeIn" id="lesson-step-dots">
+            <div class="flex items-center gap-1.5 w-48 justify-center mt-0.5" id="lesson-step-dots">
               <!-- Dynamically rendered step dots -->
             </div>
           </div>
 
-          <!-- Panel Content (Theory / Quiz) -->
-          <div class="flex-1 overflow-y-auto select-text bg-slate-50/30">
-            <div class="max-w-2xl mx-auto p-6 md:p-8 space-y-4" id="lesson-instruction-body">
-              <div class="flex flex-col items-center justify-center h-full text-center space-y-4 my-20 opacity-60">
-                <span class="text-4xl select-none">📚</span>
-                <p class="text-xs font-medium max-w-xs leading-normal">Open the syllabus from the top-left button and select a lesson to begin learning.</p>
-              </div>
+          <!-- Right: Status / Actions -->
+          <div class="flex items-center gap-3 select-none">
+            <div class="flex items-center gap-1 text-[11px] font-bold text-rose-500 bg-rose-50 border border-rose-100 px-2.5 py-0.5 rounded-full">
+              <span>❤</span> <span>5</span>
+            </div>
+            <div class="flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
+              <span>💬</span> <span>42</span>
             </div>
           </div>
+        </nav>
 
-          <!-- Panel Footer / Navigation Controls -->
-          <div class="p-4 border-t bg-slate-50/50 flex items-center justify-between shrink-0" style="border-color: var(--border-color);">
-            <button class="py-2 px-4 btn-tactile-secondary text-xs font-semibold" id="lesson-nav-prev" onclick="goToPrevPage()">
-              Back
-            </button>
+        <!-- Main centered scroll area -->
+        <div class="flex-1 overflow-y-auto flex justify-center py-6 px-4 bg-slate-50/50">
+          <div class="w-full max-w-2xl bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col min-h-[500px] overflow-hidden self-start">
             
-            <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold hidden animate-pulse" id="lesson-nav-check" onclick="checkLessonAnswer()">
-              Check Answer
-            </button>
-
-            <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold" id="lesson-nav-next" onclick="goToNextPage()">
-              Continue
-            </button>
-          </div>
-        </main>
-
-        <!-- Right Panel: Collapsible Companion Coding Workspace -->
-        <aside id="lesson-right-companion-panel" class="w-[380px] flex flex-col bg-slate-50 min-h-0 shrink-0 overflow-hidden transition-all duration-300 ease-in-out border-l" style="border-color: var(--border-color);">
-          
-          <!-- Top: Code Editor -->
-          <div class="flex-1 flex flex-col min-h-0 border-b" style="border-color: var(--border-color);">
-            <div class="h-10 flex items-center justify-between border-b px-4 shrink-0 bg-white" style="border-color: var(--border-color);">
-              <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 select-none">
-                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
-                <span class="font-semibold" id="lesson-editor-filename">main.py</span>
+            <!-- Dynamic Lesson Content Area -->
+            <div class="p-6 md:p-8 flex-1 flex flex-col gap-5" id="lesson-instruction-body">
+              <div id="lesson-instruction-copy">
+                <div class="flex flex-col items-center justify-center h-full text-center space-y-4 my-20 opacity-60">
+                  <span class="text-4xl select-none">📚</span>
+                  <p class="text-xs font-medium max-w-xs leading-normal">Open the syllabus from the top-left button and select a lesson to begin learning.</p>
+                </div>
               </div>
-              
-              <div class="flex items-center gap-1.5 select-none">
-                <button onclick="toggleEditorMaximize()" class="py-1 px-2 btn-tactile-secondary text-[11px] font-semibold flex items-center gap-1" id="lesson-editor-maximize-btn" title="Toggle Maximize">
-                  <span id="maximize-icon">⤢</span> <span id="maximize-text" class="hidden sm:inline">Maximize</span>
-                </button>
-                <button class="py-1 px-2 btn-tactile-secondary text-[11px] font-semibold" onclick="resetLessonCode()">
-                  Reset
-                </button>
-                <button class="py-1 px-3 btn-tactile-primary text-[11px] font-semibold flex items-center gap-1" onclick="runLessonCode()">
-                  <span>⚡</span> Run
-                </button>
+
+              <!-- Embedded Code Editor Area (Shown/Hidden based on step type) -->
+              <div id="lesson-inline-editor-wrapper" class="sl-tiy-widget-playground hidden">
+                <div class="tiy-widget-container">
+                  <div id="lesson-inline-editor-card" class="sl-widget-playground">
+                    <div class="sl-widget-playground__header">
+                      <button type="button" class="sl-widget-playground__header__expand-button" onclick="openLessonInPlayground()" title="Open full playground" aria-label="Open full playground">
+                        <svg class="sl-widget-playground__header__expand-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M21 20C21 20.2833 20.9042 20.5208 20.7125 20.7125C20.5208 20.9042 20.2833 21 20 21L14 21C13.7167 21 13.4792 20.9042 13.2875 20.7125C13.0958 20.5208 13 20.2833 13 20C13 19.7167 13.0958 19.4792 13.2875 19.2875C13.4792 19.0958 13.7167 19 14 19L17.6 19L5 6.4L5 10C5 10.2833 4.90417 10.5208 4.7125 10.7125C4.52083 10.9042 4.28333 11 4 11C3.71667 11 3.47917 10.9042 3.2875 10.7125C3.09583 10.5208 3 10.2833 3 10L3 4C3 3.71667 3.09583 3.47917 3.2875 3.2875C3.47917 3.09583 3.71667 3 4 3L10 3C10.2833 3 10.5208 3.09583 10.7125 3.2875C10.9042 3.47917 11 3.71667 11 4C11 4.28333 10.9042 4.52083 10.7125 4.7125C10.5208 4.90417 10.2833 5 10 5L6.4 5L19 17.6L19 14C19 13.7167 19.0958 13.4792 19.2875 13.2875C19.4792 13.0958 19.7167 13 20 13C20.2833 13 20.5208 13.0958 20.7125 13.2875C20.9042 13.4792 21 13.7167 21 14L21 20Z" fill="currentColor"></path>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div class="sl-editor-tabs-names dark">
+                      <div id="lesson-editor-tab-label" class="sl-editor-tabs-names__name active disableClick">py</div>
+                    </div>
+
+                    <div class="sl-widget-playground__tab active">
+                      <div id="lesson-editor-body-container" class="lesson-widget-editor-stage">
+                        <div id="lesson-editor-host" class="lesson-widget-editor-host"></div>
+                        <div id="lesson-editor-placeholder" class="hidden" aria-hidden="true"></div>
+                      </div>
+                    </div>
+
+                    <div class="sl-widget-playground__footer">
+                      <button type="button" id="lesson-inline-reset-btn" class="sl-playground__reset-btn" onclick="resetLessonCode()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="sl-playground__reset-btn__icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8.84825 23.9499C6.53532 23.2987 4.64905 22.0244 3.18943 20.1269C1.72981 18.2294 1 16.0455 1 13.5754C1 12.2955 1.21333 11.0772 1.63999 9.92077C2.06664 8.7643 2.67295 7.70327 3.4589 6.73768C3.70591 6.46821 4.00906 6.32786 4.36835 6.31663C4.72764 6.3054 5.05325 6.44575 5.34517 6.73768C5.59218 6.98469 5.7213 7.28784 5.73253 7.64713C5.74376 8.00642 5.62587 8.34326 5.37885 8.65763C4.83992 9.35376 4.42449 10.1173 4.13257 10.9481C3.84064 11.779 3.69468 12.6547 3.69468 13.5754C3.69468 15.3943 4.228 17.0168 5.29465 18.4427C6.36129 19.8686 7.7367 20.8398 9.42087 21.3563C9.7128 21.4461 9.9542 21.6146 10.1451 21.8616C10.3359 22.1086 10.4314 22.378 10.4314 22.67C10.4314 23.1191 10.2742 23.4728 9.95981 23.731C9.64543 23.9892 9.27491 24.0622 8.84825 23.9499ZM14.7092 23.9499C14.2825 24.0622 13.912 23.9836 13.5976 23.7142C13.2832 23.4447 13.1261 23.0854 13.1261 22.6363C13.1261 22.3668 13.2215 22.1086 13.4124 21.8616C13.6032 21.6146 13.8446 21.4461 14.1366 21.3563C15.8207 20.8174 17.1961 19.8406 18.2628 18.4258C19.3294 17.0111 19.8628 15.3943 19.8628 13.5754C19.8628 11.3299 19.0768 9.42113 17.5049 7.84923C15.933 6.27733 14.0243 5.49139 11.7787 5.49139H11.6777L12.2166 6.03032C12.4636 6.27733 12.5871 6.59171 12.5871 6.97346C12.5871 7.35521 12.4636 7.66959 12.2166 7.9166C11.9696 8.16361 11.6552 8.28712 11.2735 8.28712C10.8917 8.28712 10.5773 8.16361 10.3303 7.9166L7.50091 5.08718C7.36618 4.95245 7.27074 4.80649 7.2146 4.6493C7.15847 4.49211 7.1304 4.32369 7.1304 4.14405C7.1304 3.9644 7.15847 3.79598 7.2146 3.63879C7.27074 3.4816 7.36618 3.33564 7.50091 3.20091L10.3303 0.371495C10.5773 0.124483 10.8917 0.000976562 11.2735 0.000976562C11.6552 0.000976562 11.9696 0.124483 12.2166 0.371495C12.4636 0.618507 12.5871 0.932887 12.5871 1.31463C12.5871 1.69638 12.4636 2.01076 12.2166 2.25777L11.6777 2.79671H11.7787C14.7878 2.79671 17.3365 3.8409 19.4249 5.92927C21.5132 8.01765 22.5574 10.5664 22.5574 13.5754C22.5574 16.0231 21.8276 18.2013 20.368 20.11C18.9084 22.0188 17.0221 23.2987 14.7092 23.9499Z"></path>
+                        </svg>
+                        <span class="sl-playground__reset-btn__text">Reset code</span>
+                      </button>
+                      <button type="button" class="sl-playground__run-btn" onclick="runLessonCode()">
+                        <span class="sl-playground__run-btn__text">Run</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 16 18" fill="#149EF2" aria-hidden="true">
+                          <path d="M15 7.26798C16.3333 8.03778 16.3333 9.96229 15 10.7321L3 17.6603C1.66667 18.4301 0 17.4678 0 15.9282V2.07183C0 0.53223 1.66667 -0.43002 3 0.339781L15 7.26798Z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="lesson-inline-output-shell" class="tiy-widfet-output">
+                    <div class="tiy-widfet-output__header">Output</div>
+                    <div id="lesson-console-pane" class="lesson-sol-console-pane lesson-sol-console-pane--widget">
+                      <div class="lesson-sol-console-empty">Console output will display here when you run code.</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="flex-1 p-3 flex flex-col min-h-0 relative">
-              <div class="flex-1 min-h-0 bg-white" style="border: 1px solid var(--border-color); border-radius: 0px;">
-                <div id="lesson-editor-host" class="w-full h-full overflow-hidden"></div>
-              </div>
-              <!-- Indicator for theory steps -->
-              <div id="lesson-editor-placeholder" class="absolute inset-0 bg-slate-50/95 flex flex-col items-center justify-center p-6 text-center select-none hidden z-10">
-                <span class="text-xl mb-1">💡</span>
-                <p class="text-xs font-semibold text-slate-600">Theory Step</p>
-                <p class="text-[9px] text-slate-400 max-w-[240px] mt-0.5">Read the centered lesson card, then click Continue to proceed.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom: Output Terminal & AI Tutor Tabs -->
-          <div class="h-[260px] flex flex-col bg-slate-900 text-slate-100 select-none shrink-0">
-            <!-- Tabs -->
-            <div class="h-9 flex border-b border-slate-800 bg-slate-950 shrink-0">
-              <button class="flex-1 text-[10px] font-mono font-bold tracking-wider text-center border-r border-slate-800 text-indigo-400 bg-slate-900 border-b-2 border-indigo-500" id="lesson-tab-console-btn" onclick="switchLessonTab('console')">
-                CONSOLE OUTPUT
+            <!-- Check/Continue Footer (Sticky card bottom) -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+              <button class="py-2 px-4 btn-tactile-secondary text-xs font-semibold" id="lesson-nav-prev" onclick="goToPrevPage()">
+                Back
               </button>
-              <button class="flex-1 text-[10px] font-mono font-bold tracking-wider text-center text-slate-400 hover:text-slate-200" id="lesson-tab-tutor-btn" onclick="switchLessonTab('tutor')">
-                AI TUTOR HINT
+              
+              <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold hidden" id="lesson-nav-check" onclick="checkLessonAnswer()">
+                Check Answer
+              </button>
+
+              <button class="py-2 px-5 btn-tactile-primary text-xs font-semibold" id="lesson-nav-next" onclick="goToNextPage()">
+                Continue
               </button>
             </div>
 
-            <!-- Console Pane -->
-            <div id="lesson-console-pane" class="flex-1 overflow-y-auto p-3.5 font-mono text-[10px] leading-relaxed space-y-1 select-text">
-              <div class="opacity-40 select-none">Console output will display here when you run code.</div>
-            </div>
-
-            <!-- AI Tutor Pane -->
-            <div id="lesson-tutor-pane" class="flex-1 flex flex-col bg-slate-900 hidden">
-              <!-- Scrollable message list -->
-              <div id="lesson-tutor-messages" class="flex-1 overflow-y-auto p-3.5 space-y-3 select-text">
-                <!-- Populated by messages -->
-              </div>
-              
-              <!-- Input area -->
-              <div class="p-2 border-t border-slate-800 bg-slate-950 flex gap-2 shrink-0">
-                <input type="text" id="lesson-tutor-input" placeholder="Ask a question..." class="flex-1 px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[11px] text-slate-200 focus:outline-none focus:border-indigo-500" style="border-radius: 0px;" />
-                <button onclick="sendLessonTutorMessage()" class="py-1.5 px-3 btn-tactile-primary text-[11px] font-semibold">
-                  Send
-                </button>
-              </div>
-            </div>
           </div>
-
-        </aside>
-
+        </div>
       </div>
 
       <!-- View C: Dedicated Spacing Playground Editor (Separate Workspace) -->
@@ -403,7 +392,7 @@
               <p class="text-xs text-slate-500 leading-relaxed font-medium">
                 You are in the free coding sandbox. You can open external python scripts, write random functions, check syntax, and execute processes.
               </p>
-              <div class="p-3.5 border border-slate-100 bg-slate-50/50 text-[11px] leading-relaxed text-slate-600" style="border-radius: 0px;">
+              <div class="p-3.5 border border-slate-100 bg-slate-50/50 text-[11px] leading-relaxed text-slate-600 rounded-lg">
                 🚀 To practice a specific curriculum topic, head to the <strong>Curriculum</strong> tab, select a module, and click <strong>🚀 Practice in Playground</strong> to inject its broken code here.
               </div>
             </div>
@@ -434,7 +423,7 @@
               <textarea id="source-code" spellcheck="false"></textarea>
             </div>
 
-            <div class="h-48 mt-3 flex flex-col border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm" style="border-radius: 0px;">
+            <div class="h-48 mt-3 flex flex-col border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm rounded-lg">
               <div class="h-8 border-b px-3 flex items-center justify-between select-none shrink-0 bg-slate-50">
                 <span class="text-[9px] font-mono font-bold text-slate-500">SANDBOX OUTPUT CONSOLE</span>
                 
@@ -462,19 +451,19 @@
             <span class="text-[10px] font-mono font-bold text-slate-500 tracking-wider">TUTOR PROMPTS</span>
           </div>
           <div class="p-3 space-y-2.5 flex-1 overflow-y-auto">
-            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain indentation in Python and why it is mandatory.')" style="border-radius: 0px;">
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm rounded-lg" onclick="quickTutorQuery('Explain indentation in Python and why it is mandatory.')">
               <span class="text-[11px] font-bold text-indigo-600 font-sans">🔑 Indentation Syntax</span>
               <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Learn block indent rules</span>
             </button>
-            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('What does NameError mean and how do I solve it?')" style="border-radius: 0px;">
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm rounded-lg" onclick="quickTutorQuery('What does NameError mean and how do I solve it?')">
               <span class="text-[11px] font-bold text-indigo-600 font-sans">⚠️ Trace NameError</span>
               <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Spot local scoping issues</span>
             </button>
-            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Explain variables and integers like I am five.')" style="border-radius: 0px;">
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm rounded-lg" onclick="quickTutorQuery('Explain variables and integers like I am five.')">
               <span class="text-[11px] font-bold text-indigo-600 font-sans">🧠 Simplified Variables</span>
               <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Trace values containers</span>
             </button>
-            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm" onclick="quickTutorQuery('Give me a 5-question multiple choice quiz on Python basic loops!')" style="border-radius: 0px;">
+            <button class="w-full text-left p-3 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-all flex flex-col gap-1 shadow-sm rounded-lg" onclick="quickTutorQuery('Give me a 5-question multiple choice quiz on Python basic loops!')">
               <span class="text-[11px] font-bold text-indigo-600 font-sans">📝 Loops sequence quiz</span>
               <span class="text-[9px] text-slate-400 leading-normal font-sans font-medium">Test logic progression</span>
             </button>
@@ -489,7 +478,7 @@
           </div>
           <div class="p-3 border-t flex gap-2 bg-white shrink-0" style="border-color: var(--border-color);">
             <label class="sr-only" for="chat-input">Tutor Message</label>
-            <input type="text" id="chat-input" placeholder="Ask your Python tutor anything... (e.g. explain lists, quiz me)" class="flex-1 p-2.5 border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" style="border-radius: 0px;" />
+            <input type="text" id="chat-input" placeholder="Ask your Python tutor anything... (e.g. explain lists, quiz me)" class="flex-1 p-2.5 border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             <button id="send-chat-btn" class="px-4.5 btn-tactile-primary text-xs font-semibold">Send Message</button>
           </div>
         </div>
@@ -533,7 +522,7 @@
             <div class="space-y-4">
               <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-semibold text-slate-700">Preferred Model</label>
-                <select class="p-2 border border-slate-200 text-xs bg-slate-50" style="border-radius: 0px;">
+                <select class="p-2 border border-slate-200 text-xs bg-slate-50">
                   <option>gemini-3.5-flash (Default)</option>
                   <option>gemini-2.5-pro</option>
                 </select>
