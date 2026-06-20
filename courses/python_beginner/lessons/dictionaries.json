@@ -1,0 +1,32 @@
+{
+  "id": "dictionaries",
+  "title": "Dictionaries",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Key-Value Pairs",
+      "content": "Dictionaries store data in key-value pairs using curly braces `{}`. Each key must be unique. You access values by their key, not by index. Dictionaries are very fast for lookups."
+    },
+    {
+      "type": "code_example",
+      "title": "Working with Dicts",
+      "content": "Dictionaries map keys to values:",
+      "code": "person = {\n    \"name\": \"Alice\",\n    \"age\": 25,\n    \"city\": \"Paris\"\n}\n\nprint(person[\"name\"])   # Alice\nprint(person[\"age\"])    # 25\n\n# Add / update\nperson[\"email\"] = \"alice@mail.com\"\nperson[\"age\"] = 26\n\nprint(person)"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "How do you access a value in a dictionary?",
+      "options": ["dict[0]", "dict.value", "dict[\"key\"]", "dict.get_value()"],
+      "answer": "dict[\"key\"]",
+      "explanation": "Use the key inside square brackets to access the corresponding value."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Create a Dictionary",
+      "text": "car = [blank]\"brand\": \"Tesla\", \"year\": 2024[blank]",
+      "answers": ["{", "}"],
+      "options": ["{", "}", "[", "]"]
+    }
+  ]
+}

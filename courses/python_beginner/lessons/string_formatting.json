@@ -1,0 +1,32 @@
+{
+  "id": "string_formatting",
+  "title": "String Formatting",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "f-strings",
+      "content": "f-strings (formatted string literals) let you embed expressions inside strings. Prefix the string with `f` and put variables inside curly braces `{}`. This is the modern and preferred way to format strings."
+    },
+    {
+      "type": "code_example",
+      "title": "Using f-strings",
+      "content": "Embed variables directly in your strings:",
+      "code": "name = \"Alice\"\nage = 25\n\n# f-string\nprint(f\"My name is {name} and I am {age}.\")\n\n# Expressions inside braces\nprint(f\"Next year I'll be {age + 1}.\")\n\n# Formatting numbers\nprice = 49.99\nprint(f\"Total: ${price:.2f}\")"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What prefix creates an f-string?",
+      "options": ["s", "f", "str", "fmt"],
+      "answer": "f",
+      "explanation": "Place the letter f before the opening quote to create an f-string."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Write an f-string",
+      "text": "name = \"Python\"\nprint([blank]\"I love {name}!\")",
+      "answers": ["f"],
+      "options": ["f", "s", "str", "format"]
+    }
+  ]
+}

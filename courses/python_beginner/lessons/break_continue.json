@@ -1,0 +1,24 @@
+{
+  "id": "break_continue",
+  "title": "Break & Continue",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Controlling Loops",
+      "content": "Use `break` to exit a loop early, and `continue` to skip the current iteration and move to the next one. Both work inside `for` and `while` loops."
+    },
+    {
+      "type": "code_example",
+      "title": "Break and Continue",
+      "content": "Control the flow inside loops:",
+      "code": "# break - exit the loop\nfor i in range(10):\n    if i == 5:\n        break\n    print(i)  # 0, 1, 2, 3, 4\n\n# continue - skip current\nfor i in range(5):\n    if i == 2:\n        continue\n    print(i)  # 0, 1, 3, 4"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Loop Control",
+      "text": "Use [blank] to exit a loop and [blank] to skip an iteration.",
+      "answers": ["break", "continue"],
+      "options": ["break", "stop", "continue", "skip"]
+    }
+  ]
+}

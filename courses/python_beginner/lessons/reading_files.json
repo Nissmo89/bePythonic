@@ -1,0 +1,25 @@
+{
+  "id": "reading_files",
+  "title": "Reading Files",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Opening Files",
+      "content": "Use the `open()` function to work with files. The `with` statement ensures the file is properly closed after use. Use `\"r\"` mode for reading."
+    },
+    {
+      "type": "code_example",
+      "title": "Read a File",
+      "content": "The best practice is to use `with` to open files:",
+      "code": "# Read entire file\nwith open(\"data.txt\", \"r\") as file:\n    content = file.read()\n    print(content)\n\n# Read line by line\nwith open(\"data.txt\", \"r\") as file:\n    for line in file:\n        print(line.strip())"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which mode opens a file for reading?",
+      "options": ["\"w\"", "\"r\"", "\"a\"", "\"x\""],
+      "answer": "\"r\"",
+      "explanation": "The \"r\" mode opens a file for reading. It's also the default mode."
+    }
+  ]
+}

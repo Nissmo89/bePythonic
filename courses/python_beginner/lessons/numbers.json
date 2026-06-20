@@ -1,0 +1,32 @@
+{
+  "id": "numbers",
+  "title": "Numbers",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Number Types",
+      "content": "Python has two main number types: `int` for whole numbers like `42`, and `float` for decimal numbers like `3.14`. You can perform math operations on both."
+    },
+    {
+      "type": "code_example",
+      "title": "Integers and Floats",
+      "content": "Python automatically determines the number type:",
+      "code": "x = 10       # int\ny = 3.14     # float\n\nprint(type(x))   # <class 'int'>\nprint(type(y))   # <class 'float'>\n\n# Math operations\nprint(x + y)     # 13.14"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What is the type of 3.0 in Python?",
+      "options": ["int", "float", "double", "decimal"],
+      "answer": "float",
+      "explanation": "Any number with a decimal point is a float in Python."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Number Types",
+      "text": "The number 42 is an [blank] and the number 3.14 is a [blank].",
+      "answers": ["int", "float"],
+      "options": ["int", "string", "float", "bool"]
+    }
+  ]
+}

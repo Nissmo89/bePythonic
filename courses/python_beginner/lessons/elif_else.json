@@ -1,0 +1,25 @@
+{
+  "id": "elif_else",
+  "title": "Elif & Else",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Multiple Conditions",
+      "content": "Use `elif` (else if) to check additional conditions, and `else` to handle everything that didn't match. Only the first matching block runs."
+    },
+    {
+      "type": "code_example",
+      "title": "If / Elif / Else",
+      "content": "Python checks conditions from top to bottom:",
+      "code": "score = 75\n\nif score >= 90:\n    print(\"Grade: A\")\nelif score >= 80:\n    print(\"Grade: B\")\nelif score >= 70:\n    print(\"Grade: C\")\nelse:\n    print(\"Grade: F\")\n\n# Output: Grade: C"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What keyword handles the 'otherwise' case?",
+      "options": ["elif", "else", "otherwise", "default"],
+      "answer": "else",
+      "explanation": "The else block runs when no if or elif condition was True."
+    }
+  ]
+}

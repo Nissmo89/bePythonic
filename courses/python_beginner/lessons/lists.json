@@ -1,0 +1,32 @@
+{
+  "id": "lists",
+  "title": "Lists",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Ordered Collections",
+      "content": "A list stores multiple items in a single variable. Lists are ordered, changeable, and allow duplicates. Create a list with square brackets `[]` and separate items with commas."
+    },
+    {
+      "type": "code_example",
+      "title": "Working with Lists",
+      "content": "Lists are one of the most used data types:",
+      "code": "fruits = [\"apple\", \"banana\", \"cherry\"]\n\nprint(fruits[0])     # apple (first item)\nprint(fruits[-1])    # cherry (last item)\nprint(len(fruits))   # 3\n\n# Change an item\nfruits[1] = \"mango\"\nprint(fruits)  # ['apple', 'mango', 'cherry']"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What index does the first item of a list have?",
+      "options": ["1", "0", "-1", "First"],
+      "answer": "0",
+      "explanation": "Python lists are zero-indexed, so the first item is at index 0."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Access a List Item",
+      "text": "colors = [\"red\", \"green\", \"blue\"]\nprint(colors[[blank]])",
+      "answers": ["0"],
+      "options": ["0", "1", "first", "-1"]
+    }
+  ]
+}

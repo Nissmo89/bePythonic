@@ -1,0 +1,32 @@
+{
+  "id": "defining_functions",
+  "title": "Defining Functions",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Reusable Code",
+      "content": "Functions let you wrap code into reusable blocks. Define a function with the `def` keyword, followed by the function name and parentheses. Call it by using its name with `()`."
+    },
+    {
+      "type": "code_example",
+      "title": "Your First Function",
+      "content": "Define once, call as many times as you want:",
+      "code": "def greet():\n    print(\"Hello!\")\n    print(\"Welcome to Python.\")\n\n# Call the function\ngreet()\ngreet()  # Call it again!"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which keyword defines a function in Python?",
+      "options": ["func", "function", "def", "define"],
+      "answer": "def",
+      "explanation": "The def keyword is used to define a function in Python."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Define a Function",
+      "text": "[blank] say_hello():\n    print(\"Hi!\")",
+      "answers": ["def"],
+      "options": ["def", "func", "function", "create"]
+    }
+  ]
+}

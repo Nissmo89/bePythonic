@@ -1,0 +1,32 @@
+{
+  "id": "comments",
+  "title": "Comments",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "What are Comments?",
+      "content": "Comments are lines in your code that Python ignores. They help you explain your code to others (and to your future self). Use the `#` symbol to create a single-line comment."
+    },
+    {
+      "type": "code_example",
+      "title": "Single-line Comments",
+      "content": "Everything after `#` on that line is ignored by Python:",
+      "code": "# This is a comment\nprint(\"Hello\")  # This prints Hello\n\n# The line below won't run:\n# print(\"This is hidden\")"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which symbol starts a comment in Python?",
+      "options": ["//", "#", "/*", "--"],
+      "answer": "#",
+      "explanation": "Python uses # to start a single-line comment."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Write a Comment",
+      "text": "[blank] This is a comment",
+      "answers": ["#"],
+      "options": ["#", "//", "/*", "<!--"]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "logical",
+  "title": "Logical Operators",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Combining Conditions",
+      "content": "Logical operators combine multiple conditions: `and` (both must be true), `or` (at least one must be true), `not` (reverses the result). These are written as English words in Python."
+    },
+    {
+      "type": "code_example",
+      "title": "And, Or, Not",
+      "content": "Combine conditions with logical operators:",
+      "code": "age = 25\nhas_license = True\n\n# and - both must be True\nprint(age >= 18 and has_license)  # True\n\n# or - at least one True\nprint(age < 18 or has_license)    # True\n\n# not - flips the value\nprint(not has_license)             # False"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Logical Operators",
+      "text": "The [blank] operator returns True only if both conditions are True.",
+      "answers": ["and"],
+      "options": ["and", "or", "not", "if"]
+    }
+  ]
+}

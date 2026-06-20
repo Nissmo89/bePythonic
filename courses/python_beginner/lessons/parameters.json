@@ -1,0 +1,25 @@
+{
+  "id": "parameters",
+  "title": "Parameters & Arguments",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Passing Data to Functions",
+      "content": "Parameters are variables listed inside the function's parentheses. When you call the function, you pass arguments — the actual values. You can have multiple parameters separated by commas."
+    },
+    {
+      "type": "code_example",
+      "title": "Function Parameters",
+      "content": "Parameters make functions flexible:",
+      "code": "def greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Alice\")   # Hello, Alice!\ngreet(\"Bob\")     # Hello, Bob!\n\n# Multiple parameters\ndef add(a, b):\n    print(a + b)\n\nadd(3, 5)        # 8"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What is 'name' in `def greet(name):`?",
+      "options": ["An argument", "A parameter", "A variable", "A keyword"],
+      "answer": "A parameter",
+      "explanation": "A parameter is the variable in the function definition. The value passed when calling is an argument."
+    }
+  ]
+}

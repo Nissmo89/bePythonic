@@ -1,0 +1,90 @@
+{
+  "id": "python_beginner",
+  "title": "Python Introduction",
+  "description": "Master Python basics from scratch — variables, control flow, functions, and more.",
+  "version": "1.0.0",
+  "root": [
+    {
+      "id": "getting_started",
+      "type": "module",
+      "title": "Getting Started",
+      "children": [
+        { "id": "what_is_python", "type": "lesson", "title": "What is Python?", "file": "lessons/what_is_python.json" },
+        { "id": "first_program", "type": "lesson", "title": "Your First Program", "file": "lessons/first_program.json" },
+        { "id": "comments", "type": "lesson", "title": "Comments", "file": "lessons/comments.json" }
+      ]
+    },
+    {
+      "id": "data_types",
+      "type": "module",
+      "title": "Data Types",
+      "children": [
+        { "id": "variables", "type": "lesson", "title": "Variables", "file": "lessons/variables.json" },
+        { "id": "strings", "type": "lesson", "title": "Strings", "file": "lessons/strings.json" },
+        { "id": "numbers", "type": "lesson", "title": "Numbers", "file": "lessons/numbers.json" },
+        { "id": "booleans", "type": "lesson", "title": "Booleans", "file": "lessons/booleans.json" }
+      ]
+    },
+    {
+      "id": "operators",
+      "type": "module",
+      "title": "Operators",
+      "children": [
+        { "id": "arithmetic", "type": "lesson", "title": "Arithmetic Operators", "file": "lessons/arithmetic.json" },
+        { "id": "comparison", "type": "lesson", "title": "Comparison Operators", "file": "lessons/comparison.json" },
+        { "id": "logical", "type": "lesson", "title": "Logical Operators", "file": "lessons/logical.json" }
+      ]
+    },
+    {
+      "id": "control_flow",
+      "type": "module",
+      "title": "Control Flow",
+      "children": [
+        { "id": "if_statements", "type": "lesson", "title": "If Statements", "file": "lessons/if_statements.json" },
+        { "id": "elif_else", "type": "lesson", "title": "Elif & Else", "file": "lessons/elif_else.json" },
+        { "id": "while_loops", "type": "lesson", "title": "While Loops", "file": "lessons/while_loops.json" },
+        { "id": "for_loops", "type": "lesson", "title": "For Loops", "file": "lessons/for_loops.json" },
+        { "id": "break_continue", "type": "lesson", "title": "Break & Continue", "file": "lessons/break_continue.json" }
+      ]
+    },
+    {
+      "id": "functions",
+      "type": "module",
+      "title": "Functions",
+      "children": [
+        { "id": "defining_functions", "type": "lesson", "title": "Defining Functions", "file": "lessons/defining_functions.json" },
+        { "id": "parameters", "type": "lesson", "title": "Parameters & Arguments", "file": "lessons/parameters.json" },
+        { "id": "return_values", "type": "lesson", "title": "Return Values", "file": "lessons/return_values.json" }
+      ]
+    },
+    {
+      "id": "collections",
+      "type": "module",
+      "title": "Collections",
+      "children": [
+        { "id": "lists", "type": "lesson", "title": "Lists", "file": "lessons/lists.json" },
+        { "id": "list_methods", "type": "lesson", "title": "List Methods", "file": "lessons/list_methods.json" },
+        { "id": "tuples", "type": "lesson", "title": "Tuples", "file": "lessons/tuples.json" },
+        { "id": "dictionaries", "type": "lesson", "title": "Dictionaries", "file": "lessons/dictionaries.json" }
+      ]
+    },
+    {
+      "id": "string_ops",
+      "type": "module",
+      "title": "String Operations",
+      "children": [
+        { "id": "string_methods", "type": "lesson", "title": "String Methods", "file": "lessons/string_methods.json" },
+        { "id": "string_formatting", "type": "lesson", "title": "String Formatting", "file": "lessons/string_formatting.json" }
+      ]
+    },
+    {
+      "id": "file_handling",
+      "type": "module",
+      "title": "File Handling",
+      "children": [
+        { "id": "reading_files", "type": "lesson", "title": "Reading Files", "file": "lessons/reading_files.json" },
+        { "id": "writing_files", "type": "lesson", "title": "Writing Files", "file": "lessons/writing_files.json" }
+      ]
+    }
+  ]
+}

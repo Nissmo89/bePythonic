@@ -1,0 +1,30 @@
+{
+  "id": "variables",
+  "title": "Variables",
+  "estimated_minutes": 8,
+  "topics": ["variables", "assignment", "print"],
+  "pages": [
+    {
+      "id": "intro",
+      "type": "theory",
+      "title": "What is a Variable?",
+      "content": "A variable is a name that stores a value in memory. In Python, you can create a variable by writing a name, then an equal sign, then a value."
+    },
+    {
+      "id": "example",
+      "type": "code_example",
+      "title": "Variable Example",
+      "content": "Here is a simple example of variables in Python:",
+      "code": "name = \"Alex\"\nage = 20\nprint(name)\nprint(age)"
+    },
+    {
+      "id": "quiz_1",
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which symbol is used to assign a value in Python?",
+      "options": ["==", "=", ":", "->"],
+      "answer": "=",
+      "explanation": "In Python, a single equal sign is used for assignment."
+    }
+  ]
+}

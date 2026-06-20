@@ -1,0 +1,25 @@
+{
+  "id": "booleans",
+  "title": "Booleans",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "True or False",
+      "content": "A Boolean represents one of two values: `True` or `False`. Booleans are essential for making decisions in your code. Note: in Python, they must be capitalized."
+    },
+    {
+      "type": "code_example",
+      "title": "Using Booleans",
+      "content": "Booleans are often the result of comparisons:",
+      "code": "is_sunny = True\nis_raining = False\n\nprint(10 > 5)    # True\nprint(3 == 7)    # False\nprint(is_sunny)  # True"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What does `5 > 3` evaluate to?",
+      "options": ["True", "False", "5", "Error"],
+      "answer": "True",
+      "explanation": "5 is greater than 3, so the expression evaluates to True."
+    }
+  ]
+}

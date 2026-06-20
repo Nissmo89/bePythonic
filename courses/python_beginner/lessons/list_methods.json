@@ -1,0 +1,24 @@
+{
+  "id": "list_methods",
+  "title": "List Methods",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Modifying Lists",
+      "content": "Lists have built-in methods to add, remove, and manipulate items. Key methods: `append()` adds to the end, `insert()` adds at a position, `remove()` deletes by value, `pop()` removes by index."
+    },
+    {
+      "type": "code_example",
+      "title": "Common Methods",
+      "content": "Manipulate lists easily:",
+      "code": "nums = [3, 1, 4, 1, 5]\n\nnums.append(9)       # [3, 1, 4, 1, 5, 9]\nnums.insert(0, 0)    # [0, 3, 1, 4, 1, 5, 9]\nnums.remove(1)       # [0, 3, 4, 1, 5, 9]\nnums.sort()          # [0, 1, 3, 4, 5, 9]\nnums.reverse()       # [9, 5, 4, 3, 1, 0]\n\nprint(nums)"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Add to a List",
+      "text": "my_list = [1, 2, 3]\nmy_list.[blank](4)",
+      "answers": ["append"],
+      "options": ["append", "add", "push", "insert"]
+    }
+  ]
+}

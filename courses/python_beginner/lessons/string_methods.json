@@ -1,0 +1,24 @@
+{
+  "id": "string_methods",
+  "title": "String Methods",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Built-in String Methods",
+      "content": "Strings come with many useful methods: `upper()` converts to uppercase, `lower()` to lowercase, `strip()` removes whitespace, `replace()` swaps characters, and `split()` breaks a string into a list."
+    },
+    {
+      "type": "code_example",
+      "title": "Common Methods",
+      "content": "Transform and analyze strings easily:",
+      "code": "msg = \"  Hello, World!  \"\n\nprint(msg.strip())         # \"Hello, World!\"\nprint(msg.upper())         # \"  HELLO, WORLD!  \"\nprint(msg.lower())         # \"  hello, world!  \"\nprint(msg.replace(\"World\", \"Python\"))\n# \"  Hello, Python!  \"\n\nwords = \"one,two,three\".split(\",\")\nprint(words)  # ['one', 'two', 'three']"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "String Methods",
+      "text": "Use .[blank]() to convert a string to uppercase.",
+      "answers": ["upper"],
+      "options": ["upper", "capitalize", "big", "toUpper"]
+    }
+  ]
+}

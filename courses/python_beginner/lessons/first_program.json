@@ -1,0 +1,32 @@
+{
+  "id": "first_program",
+  "title": "Your First Program",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Hello, World!",
+      "content": "In Python, we use the `print()` function to output text to the screen."
+    },
+    {
+      "type": "code_example",
+      "title": "Print Example",
+      "content": "Here is how you print Hello, World! in Python:",
+      "code": "print(\"Hello, World!\")"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which function is used to display output?",
+      "options": ["output()", "echo()", "print()", "display()"],
+      "answer": "print()",
+      "explanation": "The print() function outputs the specified message."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Write your first code",
+      "text": "[blank](\"I love Python!\")",
+      "answers": ["print"],
+      "options": ["output", "print", "echo", "log"]
+    }
+  ]
+}

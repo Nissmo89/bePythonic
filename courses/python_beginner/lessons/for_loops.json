@@ -1,0 +1,32 @@
+{
+  "id": "for_loops",
+  "title": "For Loops",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Looping Over Items",
+      "content": "A `for` loop iterates over a sequence (like a list, string, or range). Use `range()` to loop a specific number of times."
+    },
+    {
+      "type": "code_example",
+      "title": "For Loop Examples",
+      "content": "Iterate over different sequences:",
+      "code": "# Loop with range\nfor i in range(5):\n    print(i)  # 0, 1, 2, 3, 4\n\n# Loop over a list\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n\n# Loop over a string\nfor letter in \"Python\":\n    print(letter)"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What does `range(3)` produce?",
+      "options": ["1, 2, 3", "0, 1, 2", "0, 1, 2, 3", "3, 2, 1"],
+      "answer": "0, 1, 2",
+      "explanation": "range(3) starts at 0 and goes up to (but not including) 3."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Write a For Loop",
+      "text": "[blank] item in my_list:\n    print(item)",
+      "answers": ["for"],
+      "options": ["for", "while", "each", "loop"]
+    }
+  ]
+}

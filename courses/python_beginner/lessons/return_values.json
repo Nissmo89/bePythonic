@@ -1,0 +1,24 @@
+{
+  "id": "return_values",
+  "title": "Return Values",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Getting Results Back",
+      "content": "Use the `return` keyword to send a value back from a function. The function stops executing after a `return` statement. You can store the returned value in a variable."
+    },
+    {
+      "type": "code_example",
+      "title": "Return Statement",
+      "content": "Return values make functions much more powerful:",
+      "code": "def square(n):\n    return n * n\n\nresult = square(4)\nprint(result)     # 16\n\n# Use directly\nprint(square(7))  # 49"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Return a Value",
+      "text": "def double(x):\n    [blank] x * 2",
+      "answers": ["return"],
+      "options": ["return", "print", "send", "output"]
+    }
+  ]
+}

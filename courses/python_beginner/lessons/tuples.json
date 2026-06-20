@@ -1,0 +1,25 @@
+{
+  "id": "tuples",
+  "title": "Tuples",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Immutable Sequences",
+      "content": "Tuples are like lists, but they cannot be changed after creation (immutable). Use parentheses `()` instead of square brackets. Tuples are faster than lists and useful when data shouldn't change."
+    },
+    {
+      "type": "code_example",
+      "title": "Working with Tuples",
+      "content": "Tuples are created with parentheses:",
+      "code": "coordinates = (10, 20)\ncolors = (\"red\", \"green\", \"blue\")\n\nprint(coordinates[0])  # 10\nprint(len(colors))     # 3\n\n# Unpacking\nx, y = coordinates\nprint(x)  # 10\nprint(y)  # 20"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Can you modify a tuple after creating it?",
+      "options": ["Yes", "No", "Only with .modify()", "Only the first item"],
+      "answer": "No",
+      "explanation": "Tuples are immutable — you cannot add, remove, or change items after creation."
+    }
+  ]
+}

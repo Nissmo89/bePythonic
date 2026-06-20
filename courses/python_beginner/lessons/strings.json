@@ -1,0 +1,23 @@
+{
+  "id": "strings",
+  "title": "Strings",
+  "estimated_minutes": 5,
+  "topics": ["strings", "text"],
+  "pages": [
+    {
+      "id": "intro",
+      "type": "theory",
+      "title": "Strings in Python",
+      "content": "Strings in python are surrounded by either single quotation marks, or double quotation marks.\n\n'hello' is the same as \"hello\"."
+    },
+    {
+      "id": "quiz_1",
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Are 'hello' and \"hello\" the same in Python?",
+      "options": ["Yes", "No"],
+      "answer": "Yes",
+      "explanation": "Both single and double quotes can be used to create strings in Python."
+    }
+  ]
+}

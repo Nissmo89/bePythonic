@@ -1,0 +1,26 @@
+{
+  "id": "what_is_python",
+  "title": "What is Python?",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Welcome to Python",
+      "content": "Python is a very popular and easy-to-learn programming language. It is used in web development, data science, AI, and much more."
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What is Python?",
+      "options": ["A type of snake", "A programming language", "A web browser", "An operating system"],
+      "answer": "A programming language",
+      "explanation": "Python is a powerful programming language."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Fill in the Blank",
+      "text": "Python is used for web [blank] and data [blank].",
+      "answers": ["development", "science"],
+      "options": ["development", "browser", "science", "hardware"]
+    }
+  ]
+}

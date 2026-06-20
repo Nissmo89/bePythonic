@@ -1,0 +1,25 @@
+{
+  "id": "comparison",
+  "title": "Comparison Operators",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Comparing Values",
+      "content": "Comparison operators compare two values and return a Boolean. Python uses `==` (equal), `!=` (not equal), `>` (greater), `<` (less), `>=` (greater or equal), `<=` (less or equal)."
+    },
+    {
+      "type": "code_example",
+      "title": "Examples",
+      "content": "Each comparison returns `True` or `False`:",
+      "code": "print(5 == 5)   # True\nprint(5 != 3)   # True\nprint(5 > 10)   # False\nprint(3 <= 3)   # True\nprint(7 >= 8)   # False"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "Which operator checks if two values are NOT equal?",
+      "options": ["==", "!=", "<>", "!=="],
+      "answer": "!=",
+      "explanation": "In Python, != is the not-equal operator."
+    }
+  ]
+}

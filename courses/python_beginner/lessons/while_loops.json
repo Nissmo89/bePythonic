@@ -1,0 +1,25 @@
+{
+  "id": "while_loops",
+  "title": "While Loops",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Repeating Code",
+      "content": "A `while` loop repeats a block of code as long as its condition is `True`. Be careful — if the condition never becomes False, you'll get an infinite loop!"
+    },
+    {
+      "type": "code_example",
+      "title": "While Loop",
+      "content": "This loop counts from 1 to 5:",
+      "code": "count = 1\n\nwhile count <= 5:\n    print(count)\n    count += 1  # Don't forget this!\n\nprint(\"Done!\")"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "When does a while loop stop?",
+      "options": ["After 10 iterations", "When the condition becomes False", "When it reaches a return statement", "It never stops"],
+      "answer": "When the condition becomes False",
+      "explanation": "A while loop continues as long as the condition is True and stops when it becomes False."
+    }
+  ]
+}

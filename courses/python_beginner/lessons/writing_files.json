@@ -1,0 +1,24 @@
+{
+  "id": "writing_files",
+  "title": "Writing Files",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Writing to Files",
+      "content": "Use `\"w\"` mode to write to a file (overwrites existing content) or `\"a\"` mode to append to the end. Always use the `with` statement for safety."
+    },
+    {
+      "type": "code_example",
+      "title": "Write and Append",
+      "content": "Create or overwrite a file with `\"w\"`:",
+      "code": "# Write (creates or overwrites)\nwith open(\"output.txt\", \"w\") as file:\n    file.write(\"Hello!\\n\")\n    file.write(\"Python is great.\\n\")\n\n# Append (adds to end)\nwith open(\"output.txt\", \"a\") as file:\n    file.write(\"This is a new line.\\n\")"
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "File Modes",
+      "text": "Use [blank] mode to write and [blank] mode to append to a file.",
+      "answers": ["\"w\"", "\"a\""],
+      "options": ["\"w\"", "\"r\"", "\"a\"", "\"x\""]
+    }
+  ]
+}

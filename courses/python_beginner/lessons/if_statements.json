@@ -1,0 +1,32 @@
+{
+  "id": "if_statements",
+  "title": "If Statements",
+  "pages": [
+    {
+      "type": "theory",
+      "title": "Making Decisions",
+      "content": "The `if` statement lets your code make decisions. If the condition is `True`, the indented block of code runs. Python uses indentation (spaces) instead of curly braces."
+    },
+    {
+      "type": "code_example",
+      "title": "If Statement",
+      "content": "The code inside the `if` block only runs when the condition is True:",
+      "code": "temperature = 35\n\nif temperature > 30:\n    print(\"It's hot outside!\")\n    print(\"Drink water.\")\n\nprint(\"This always prints.\")"
+    },
+    {
+      "type": "mcq",
+      "title": "Quick Check",
+      "question": "What does Python use to define code blocks?",
+      "options": ["Curly braces {}", "Indentation", "Parentheses ()", "Square brackets []"],
+      "answer": "Indentation",
+      "explanation": "Python uses indentation (typically 4 spaces) to define code blocks."
+    },
+    {
+      "type": "fill_in_the_blank",
+      "title": "Write an If",
+      "text": "[blank] score >= 90:\n    print(\"You got an A!\")",
+      "answers": ["if"],
+      "options": ["if", "when", "check", "then"]
+    }
+  ]
+}
